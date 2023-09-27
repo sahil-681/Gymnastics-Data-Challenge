@@ -146,7 +146,18 @@ data = data %>%
          Country = ifelse(ID == "achampong_ondine", 
                                       "GBR", Country),
          Gender = ifelse(ID == "godwin_georgia", 
-                          "w", Gender))
+                          "w", Gender),
+         ID = ifelse(ID == "de_jesus" & Country == "FRA", "jesus_santos_melanie", ID),
+         Country = ifelse(ID == "chasazyrovas_gytis" & Gender == "m", "LTU", Country),
+         Country = ifelse(ID == "schmidt_casimir" & Gender == "m", "NED", Country),
+         Gender = ifelse(ID == "godwin_georgia" & Country == "AUS", "w", Gender),
+         Country = ifelse(Country == "IRL", "GBR", Country),
+         Country = ifelse(Country == "SCO", "GBR", Country),
+         Country = ifelse(ID == "aleksandrov_yordan" & Gender == "m", "BUL", Country),
+         ID = ifelse(ID == "richard_frederick_nathaniel" & Country == "USA", "richard_frederick", ID),
+         ID = ifelse(ID == "skirkey_ian_hunter" & Country == "USA", "skirkey_ian", ID),
+         ID = ifelse(ID == "callum_mc_grace" & Country == "USA", "mc_callum", ID)
+  )
 
 data <- data[!(data$ID == "whitehead_emily" & data$Gender == "m"), ]
 data <- data[!(data$ID == "achampong_ondine" & data$Gender == "m"), ]
