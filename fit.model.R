@@ -14,7 +14,7 @@ stddevs_df <- data %>%
   pivot_wider(names_from=Apparatus, values_from=score_sd)
 
 events <- c("VT", "BB", "UB", "FX", "HB", "PB", "PH", "SR")
-samples_df <- as.data.frame(matrix(nrow=dim(means_df)[1], ncol=length(events)+1))
+samples_df <- as.data.frame(matrix(nrow=dim(means_df)[1], ncol=length(events)+3))
 colnames(samples_df) <- c(c("ID"), events)
 samples_df$ID <- means_df$ID
 samples_df$Country <- means_df$Country
@@ -35,7 +35,6 @@ for (i in 1:nrow(means_df)) {
     # Append the random sample to the samples 
     samples_df[[i, j]] <- random_sample
   }
-  
 }
 
 # write the means and stddevs output files
