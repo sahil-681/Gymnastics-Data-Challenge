@@ -151,7 +151,7 @@ data = data %>%
          Country = ifelse(ID == "chasazyrovas_gytis" & Gender == "m", "LTU", Country),
          Country = ifelse(ID == "schmidt_casimir" & Gender == "m", "NED", Country),
          Gender = ifelse(ID == "godwin_georgia" & Country == "AUS", "w", Gender),
-         Country = ifelse(Country == "IRL", "GBR", Country),
+         Country = ifelse(Country == "ENG", "GBR", Country),
          Country = ifelse(Country == "SCO", "GBR", Country),
          Country = ifelse(ID == "aleksandrov_yordan" & Gender == "m", "BUL", Country),
          ID = ifelse(ID == "richard_frederick_nathaniel" & Country == "USA", "richard_frederick", ID),

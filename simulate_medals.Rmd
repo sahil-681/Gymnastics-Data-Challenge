@@ -103,10 +103,6 @@ filtered_df <- top_df %>%
 top_8_countries <- head(filtered_df, n = 8)
 qual_teams <- top_8_countries$Country 
 ```
-```{r}
-sort(unique(means_df$Country))
-```
-
 
 
 # AA QUalifications
@@ -136,14 +132,6 @@ ID_country_dict <- means_df[, c("ID", "Country")]
 ID_country_dict <- ID_country_dict[!duplicated(ID_country_dict$ID, fromLast=T), ]
 ```
 
-```{r}
-top12teams$ID[top12teams$Country=="ENG"]
-```
-
-```{r}
-top12teams
-```
-
 
 # Simulate Team Finals (M)
 qual_teams <- read.csv("data/finaled_teams.csv")
@@ -156,12 +144,9 @@ country_scores <- data.frame(
 for(country in qual_teams){
   n_nas <- 0
   athlete_names <- top12teams$ID[top12teams$Country==country]
-  print(c(country, athlete_names))
-  print(athlete_names)
   
   for(app in apps){
     curr_df <- means_df[means_df$ID %in% athlete_names,]
-    break
     top3 <- order(-curr_df[, app])[1:3]
     top3_id <- curr_df$ID[top3]
     for(id in top3_id){
