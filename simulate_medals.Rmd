@@ -3,117 +3,208 @@ title: "sim_medals"
 output: html_document
 date: "2023-09-24"
 ---
+```{r}
+library(tidyr)
+```
+
 
 ```{r}
-# load mean and sd data
-players_means <- read.csv("data/means_per_app.csv")
-players_sds <- read.csv("data/stddevs_per_app.csv")
+# function simulate_medal(team_country_qualified_individuals, means_df, stddevs_df, 36_athletes, gender)
+top12teams <- read.csv("data/team_country_qualified_individuals.csv")
+means_df <- read.csv("data/means_per_app.csv") #means_df
+stddevs_df <- read.csv("data/stddevs_per_app.csv") #stddevs_df
+qual36 <- read.csv("data/mens_36_athletes.csv")
+gender <- "m"
+
+means_df <- means_df[means_df$Gender == gender, ]
+stddevs_df <- stddevs_df[stddevs_df$Gender == gender, ]
+top12teams <- top12teams[top12teams$Gender == gender, ]
 
 
-qual_teams <- read.csv("data/finaled_teams.csv")
-# qual_teams <- data.frame(gender = c("m", "w"), 
-#                          T1 = "CHN", T2 = "JPN", T3 = "GBR", T4 = "ESP", T5="USA",
-#                          T6 = "FRA", T7="AUS", T8="ITA")
-qual_aa <- read.csv("data/finaled_aas.csv")
-qual_ind <- read.csv("data/finaled_events.csv")
+if(gender=="m"){
+  apps <- c("VT", "FX", "HB", "PB", "PH", "SR")
+}else{
+  apps <- c("VT", "BB", "UB", "FX")
+}
 
+```
+
+
+
+# Create QUalifying Samples
+```{r}
+get_samples_df <- function(meansdf, stddevsdf){
+  long_means <- pivot_longer(meansdf,
+                             cols=c("VT", "BB", "UB", "FX", "HB", "PB", "PH", "SR"),
+                             names_to="App", values_to="mean")
+  long_stddevs <- pivot_longer(stddevsdf,
+                               cols=c("VT", "BB", "UB", "FX", "HB", "PB", "PH", "SR"),
+                               names_to="App", values_to="stddev")
+  long_data <- merge(x=long_means, y=long_stddevs, by=c("ID", "Gender", "Country", "App"), all=TRUE)
+  
+  samples_df <- long_data[, c("ID", "Gender", "Country", "App")]
+  samples_df$Score <- rnorm(length(long_data$ID), mean=long_data$mean, sd=long_data$stddev)
+  samples_df <- pivot_wider(samples_df, names_from="App", values_from="Score")
+
+  return(samples_df)
+}
+samples_df <- get_samples_df(means_df, stddevs_df)
+```
+
+# Team Qualifications
+```{r}
+means_q <- means_df %>%
+  filter(ID %in% top12teams$ID)
+
+means_q$Total_Mean <- rowSums(means_q[, c("VT", "BB", "UB", "FX", "HB", "PB", "PH", "SR")], na.rm = TRUE)
+
+means_q <- means_q %>%
+  mutate(across(VT:SR, ~ifelse(is.na(.), 0, .)))
+
+# Selecting top 4 means to compete in qualifying
+means_q2 <- means_q %>%
+  pivot_longer(cols = VT:SR, names_to = "Apparatus", values_to = "Mean_Score")
+
+top_4_athletes_per_apparatus <- means_q2 %>%
+  group_by(Country, Gender, Apparatus) %>%
+  arrange(desc(Mean_Score)) %>%
+  slice_head(n = 4) %>%
+  ungroup() %>%
+  filter(!(Gender == "m" & (Apparatus %in% c("BB", "UB")) 
+           & Mean_Score == 0.000000)) %>%
+  filter(!(Gender == "w" & (Apparatus %in% c("HB", "PB", "PH", "SR")) 
+           & Mean_Score == 0.000000))
+
+samples_longer <- samples_df %>%
+  pivot_longer(cols = VT:SR, names_to = "Apparatus", values_to = "Final_Score")
+
+# Left join top_4_athletes_per_apparatus with samples_longer by ID and Apparatus
+top_4_athletes_per_apparatus <- top_4_athletes_per_apparatus %>%
+  left_join(samples_longer, by = c("ID", "Apparatus")) %>%
+  mutate(Final_Score = ifelse(is.na(Final_Score), 0, Final_Score)) %>%
+  rename(Gender = Gender.x, Country = Country.x) %>%
+  select(-Mean_Score, -Country.y, -Gender.y)  # Remove the Mean_Score column if you no longer need it
+
+# Scores for top countries
+top_df <- top_4_athletes_per_apparatus %>%
+  filter(Gender == gender) %>%
+  group_by(Country, Apparatus) %>%
+  arrange(desc(Final_Score))
+
+# Slice the top 3 rows for each group (dropping the 4th highest Final_Score)
+filtered_df <- top_df %>%
+  slice(1:3) %>%
+  group_by(Country) %>%
+  summarize(Final_Score = sum(Final_Score, na.rm = TRUE)) %>%
+  arrange(desc(Final_Score)) %>%
+  mutate(Gender = "m")
+
+# Select the top 8 countries with the highest Final_Score
+top_8_countries <- head(filtered_df, n = 8)
+qual_teams <- top_8_countries$Country 
+```
+```{r}
+sort(unique(means_df$Country))
+```
+
+
+
+# AA QUalifications
+```{r}
+
+```
+
+
+# Event Qualifications
+```{r}
+
+```
+
+
+# SIMULATE FINALS PREP
+
+```{r}
 # the output df, tallying the number of each medal for each country
 country_medals <- data.frame(
-  Country = unique(players_means$Country),
-  Golds = 0, Silvers = 0, Bronzes = 0
+  Country = unique(means_df$Country),
+  Firsts = 0, Seconds = 0, Thirds = 0, Fourths = 0,
+  Fifths = 0, Sixths = 0, Sevenths = 0, Eighths = 0
 )
 
 # use as dictionary to get the country of each ID (player)
-ID_country_dict <- players_means[, c("ID", "Country")]
+ID_country_dict <- means_df[, c("ID", "Country")]
 ID_country_dict <- ID_country_dict[!duplicated(ID_country_dict$ID, fromLast=T), ]
+```
 
-# define the male and female events
-m_apps <- c("VT", "FX", "HB", "PB", "PH", "SR")
-f_apps <- c("VT", "BB", "UB", "FX")
+```{r}
+top12teams$ID[top12teams$Country=="ENG"]
+```
+
+```{r}
+top12teams
 ```
 
 
 # Simulate Team Finals (M)
+qual_teams <- read.csv("data/finaled_teams.csv")
 ```{r}
-country_scores_m <- data.frame(
-  country = as.character(qual_teams[1, 2:9]),
+country_scores <- data.frame(
+  country = qual_teams,
   scores = rep(0, 8), 
   nas = rep(0, 8)
 )
-for(i in 2:9){
-  country <- qual_teams[1, i]
+for(country in qual_teams){
   n_nas <- 0
-  for(app in m_apps){
-    curr_df <- players_means[players_means$gender == "m" & players_means$Country == country,]
+  athlete_names <- top12teams$ID[top12teams$Country==country]
+  print(c(country, athlete_names))
+  print(athlete_names)
+  
+  for(app in apps){
+    curr_df <- means_df[means_df$ID %in% athlete_names,]
+    break
     top3 <- order(-curr_df[, app])[1:3]
     top3_id <- curr_df$ID[top3]
     for(id in top3_id){
       score <- rnorm(1, 
-                     mean=players_means[players_means$ID==id, app],
-                     sd=players_sds[players_sds$ID==id, app]
+                     mean=means_df[means_df$ID==id, app],
+                     sd=stddevs_df[stddevs_df$ID==id, app]
                   )
       if(!is.na(score)){ # only add if not na, and tally up nas
-        country_scores_m$scores[country_scores_m$country == country] <- country_scores_m$scores[country_scores_m$country == country] + score
+        country_scores$scores[country_scores$country == country] <- country_scores$scores[country_scores$country == country] + score
       }
       else{
         n_nas <- n_nas + 1
       }
     }
   }
-  country_scores_m$nas[country_scores_m$country == country] <- n_nas
+  country_scores$nas[country_scores$country == country] <- n_nas
 }
 
 #assigning medals
-top3_countries <- country_scores_m$country[order(-country_scores_m$scores)[1:3]]
-country_medals$Golds[country_medals$Country == top3_countries[1]] = country_medals$Golds[country_medals$Country == top3_countries[1]] + 1
-country_medals$Silvers[country_medals$Country == top3_countries[2]] = country_medals$Silvers[country_medals$Country == top3_countries[2]] + 1
-country_medals$Bronzes[country_medals$Country == top3_countries[3]] = country_medals$Bronzes[country_medals$Country == top3_countries[3]] + 1
+top8_countries <- country_scores$country[order(-country_scores$scores)[1:8]]
+country_medals$Firsts[country_medals$Country == top8_countries[1]] = country_medals$Firsts[country_medals$Country == top8_countries[1]] + 1
+country_medals$Seconds[country_medals$Country == top8_countries[2]] = country_medals$Seconds[country_medals$Country == top8_countries[2]] + 1
+country_medals$Thirds[country_medals$Country == top8_countries[3]] = country_medals$Thirds[country_medals$Country == top8_countries[3]] + 1
+country_medals$Fourths[country_medals$Country == top8_countries[4]] = country_medals$Fourths[country_medals$Country == top8_countries[4]] + 1
+country_medals$Fifths[country_medals$Country == top8_countries[5]] = country_medals$Fifths[country_medals$Country == top8_countries[5]] + 1
+country_medals$Sixths[country_medals$Country == top8_countries[6]] = country_medals$Sixths[country_medals$Country == top8_countries[6]] + 1
+country_medals$Sevenths[country_medals$Country == top8_countries[7]] = country_medals$Sevenths[country_medals$Country == top8_countries[7]] + 1
+country_medals$Eighths[country_medals$Country == top8_countries[8]] = country_medals$Eighths[country_medals$Country == top8_countries[8]] + 1
 ```
 
-
-# Simulate Teams Finals (W)
 ```{r}
-country_scores_f <- data.frame(
-  country = as.character(qual_teams[2, 2:9]),
-  scores = rep(0, 8), 
-  nas = rep(0, 8)
-)
+print(country_scores)
+```
 
-for(i in 2:9){
-  country <- qual_teams[2, i]
-  n_nas <- 0
-  for(app in f_apps){
-    curr_df <- players_means[players_means$gender == "w" & players_means$Country == country,]
-    top3 <- order(-curr_df[, app])[1:3]
-    top3_id <- curr_df$ID[top3]
-    for(id in top3_id){
-      score <- rnorm(1, 
-                     mean=players_means[players_means$ID==id, app],
-                     sd=players_sds[players_sds$ID==id, app]
-                  )
-      if(!is.na(score)){
-        country_scores_f$scores[country_scores_f$country == country] <- country_scores_f$scores[country_scores_f$country == country] + score
-      }
-      else{
-        n_nas <- n_nas + 1
-      }
-      # print(c(country, app, id, score))
-    }
-  }
-  country_scores_f$nas[country_scores_f$country == country] <- n_nas
-}
-
-#assigning medals
-top3_countries <- country_scores_f$country[order(-country_scores_f$scores)[1:3]]
-country_medals$Golds[country_medals$Country == top3_countries[1]] = country_medals$Golds[country_medals$Country == top3_countries[1]] + 1
-country_medals$Silvers[country_medals$Country == top3_countries[2]] = country_medals$Silvers[country_medals$Country == top3_countries[2]] + 1
-country_medals$Bronzes[country_medals$Country == top3_countries[3]] = country_medals$Bronzes[country_medals$Country == top3_countries[3]] + 1
+```{r}
+curr_df
 ```
 
 
 # Simulate AA Finals(M)
+qual_aa <- read.csv("data/finaled_aas.csv")
 ```{r}
-aa_scores_m <- data.frame(
+aa_scores <- data.frame(
   ID = as.character(qual_aa[1, 2:25]),
   scores = rep(0, 24),
   nas = rep(0, 24)
@@ -122,64 +213,37 @@ aa_scores_m <- data.frame(
 for(i in 2:25){
   n_nas <- 0
   id <- qual_aa[1, i]
-  for(app in m_apps){
+  for(app in apps){
       score <- rnorm(1,
-                     mean=players_means[players_means$ID==id, app],
-                     sd=players_sds[players_sds$ID==id, app]
+                     mean=means_df[means_df$ID==id, app],
+                     sd=stddevs_df[stddevs_df$ID==id, app]
                   )
       if(!is.na(score)){
-        aa_scores_m$scores[aa_scores_m$ID == id] <- aa_scores_m$scores[aa_scores_m$ID == id] + score
+        aa_scores$scores[aa_scores$ID == id] <- aa_scores$scores[aa_scores$ID == id] + score
       }
       else{
         n_nas <- n_nas + 1
       }
   }
-  aa_scores_m$nas[aa_scores_m$ID == id] <- n_nas
+  aa_scores$nas[aa_scores$ID == id] <- n_nas
 }
 
 #assigning medals
-top3_i <- aa_scores_m$ID[order(-aa_scores_m$scores)[1:3]]
-top3_countries <- as.character(sapply(top3_i, function(i) ID_country_dict$Country[ID_country_dict$ID == i]))
-country_medals$Golds[country_medals$Country == top3_countries[1]] = country_medals$Golds[country_medals$Country == top3_countries[1]] + 1
-country_medals$Silvers[country_medals$Country == top3_countries[2]] = country_medals$Silvers[country_medals$Country == top3_countries[2]] + 1
-country_medals$Bronzes[country_medals$Country == top3_countries[3]] = country_medals$Bronzes[country_medals$Country == top3_countries[3]] + 1
-```
-
-
-# Simulate AA Finals(F)
-```{r}
-aa_scores_f <- data.frame(
-  ID = as.character(qual_aa[2, 2:25]),
-  scores = rep(0, 24),
-  nas = rep(0, 24)
-)
-
-for(i in 2:25){
-  n_nas <- 0
-  id <- qual_aa[2, i]
-  for(app in f_apps){
-      score <- rnorm(1,
-                     mean=players_means[players_means$ID==id, app],
-                     sd=players_sds[players_sds$ID==id, app]
-                  )
-      if(!is.na(score)){
-        aa_scores_f$scores[aa_scores_f$ID == id] <- aa_scores_f$scores[aa_scores_f$ID == id] + score
-      }
-      else{
-        n_nas <- n_nas + 1
-      }
-  }
-  aa_scores_f$nas[aa_scores_f$ID == id] <- n_nas
-}
-top3_i <- aa_scores_f$ID[order(-aa_scores_f$scores)[1:3]]
-top3_countries <- as.character(sapply(top3_i, function(i) ID_country_dict$Country[ID_country_dict$ID == i]))
-country_medals$Golds[country_medals$Country == top3_countries[1]] = country_medals$Golds[country_medals$Country == top3_countries[1]] + 1
-country_medals$Silvers[country_medals$Country == top3_countries[2]] = country_medals$Silvers[country_medals$Country == top3_countries[2]] + 1
-country_medals$Bronzes[country_medals$Country == top3_countries[3]] = country_medals$Bronzes[country_medals$Country == top3_countries[3]] + 1
+top8_i <- aa_scores$ID[order(-aa_scores$scores)[1:8]]
+top8_countries <- as.character(sapply(top8_i, function(i) ID_country_dict$Country[ID_country_dict$ID == i]))
+country_medals$Firsts[country_medals$Country == top8_countries[1]] = country_medals$Firsts[country_medals$Country == top8_countries[1]] + 1
+country_medals$Seconds[country_medals$Country == top8_countries[2]] = country_medals$Seconds[country_medals$Country == top8_countries[2]] + 1
+country_medals$Thirds[country_medals$Country == top8_countries[3]] = country_medals$Thirds[country_medals$Country == top8_countries[3]] + 1
+country_medals$Fourths[country_medals$Country == top8_countries[4]] = country_medals$Fourths[country_medals$Country == top8_countries[4]] + 1
+country_medals$Fifths[country_medals$Country == top8_countries[5]] = country_medals$Fifths[country_medals$Country == top8_countries[5]] + 1
+country_medals$Sixths[country_medals$Country == top8_countries[6]] = country_medals$Sixths[country_medals$Country == top8_countries[6]] + 1
+country_medals$Sevenths[country_medals$Country == top8_countries[7]] = country_medals$Sevenths[country_medals$Country == top8_countries[7]] + 1
+country_medals$Eighths[country_medals$Country == top8_countries[8]] = country_medals$Eighths[country_medals$Country == top8_countries[8]] + 1
 ```
 
 
 # Simulate Event Finals
+qual_ind <- read.csv("data/finaled_events.csv")
 ```{r}
 get_event_final_scores <- function(gender, app, IDs){
   out_df <- data.frame(
@@ -190,26 +254,28 @@ get_event_final_scores <- function(gender, app, IDs){
   )
   out_df$Score <- sapply(out_df$ID, 
                          function(id) rnorm(1,
-                                            mean=players_means[players_means$ID==id, app],
-                                            sd=players_sds[players_sds$ID==id, app]
+                                            mean=means_df[means_df$ID==id, app],
+                                            sd=stddevs_df[stddevs_df$ID==id, app]
                                             )
                          )
   return(out_df)
 }
-```
 
 
-```{r}
 for(i in 1:dim(qual_ind)[1]){
   curr_event <- qual_ind[i, ] 
   scores <- get_event_final_scores(curr_event$Gender, curr_event$App, as.character(curr_event[, 3:ncol(curr_event)]))
   
-  top3_i <- scores$ID[order(-scores$score)[1:3]]
-  top3_countries <- as.character(sapply(top3_i, function(i) ID_country_dict$Country[ID_country_dict$ID == i]))
-  country_medals$Golds[country_medals$Country == top3_countries[1]] = country_medals$Golds[country_medals$Country == top3_countries[1]] + 1
-  country_medals$Silvers[country_medals$Country == top3_countries[2]] = country_medals$Silvers[country_medals$Country == top3_countries[2]] + 1
-  country_medals$Bronzes[country_medals$Country == top3_countries[3]] = country_medals$Bronzes[country_medals$Country == top3_countries[3]] + 1
-  
+  top8_i <- scores$ID[order(-scores$score)[1:8]]
+  top8_countries <- as.character(sapply(top8_i, function(i) ID_country_dict$Country[ID_country_dict$ID == i]))
+  country_medals$Firsts[country_medals$Country == top8_countries[1]] = country_medals$Firsts[country_medals$Country == top8_countries[1]] + 1
+  country_medals$Seconds[country_medals$Country == top8_countries[2]] = country_medals$Seconds[country_medals$Country == top8_countries[2]] + 1
+  country_medals$Thirds[country_medals$Country == top8_countries[3]] = country_medals$Thirds[country_medals$Country == top8_countries[3]] + 1
+  country_medals$Fourths[country_medals$Country == top8_countries[4]] = country_medals$Fourths[country_medals$Country == top8_countries[4]] + 1
+  country_medals$Fifths[country_medals$Country == top8_countries[5]] = country_medals$Fifths[country_medals$Country == top8_countries[5]] + 1
+  country_medals$Sixths[country_medals$Country == top8_countries[6]] = country_medals$Sixths[country_medals$Country == top8_countries[6]] + 1
+  country_medals$Sevenths[country_medals$Country == top8_countries[7]] = country_medals$Sevenths[country_medals$Country == top8_countries[7]] + 1
+  country_medals$Eighths[country_medals$Country == top8_countries[8]] = country_medals$Eighths[country_medals$Country == top8_countries[8]] + 1
 }
 ```
 
@@ -218,7 +284,7 @@ write.csv(country_medals, "data/medalling_outputs.csv", row.names=F)
 ```
 
 ```{r}
-country_medals
+colSums(country_medals[, 2:9])
 ```
 
 

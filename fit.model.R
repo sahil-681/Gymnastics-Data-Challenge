@@ -4,14 +4,17 @@ library(tidyverse)
 # calculate the mean scores in the data per athlete per apparatus
 means_df <- data %>%
   group_by(ID, Gender, Country, Apparatus) %>%
-  summarise(score_mean = mean(Score)) %>%
+  summarise(score_mean = mean(Score, na.rm=T)) %>%
   pivot_wider(names_from=Apparatus, values_from=score_mean)
 
 # calculate the stddev of scores in the data per athlete per apparatus
 stddevs_df <- data %>%
   group_by(ID, Gender, Country, Apparatus) %>%
-  summarise(score_sd = sd(Score)) %>%
+  summarise(score_sd = sd(Score, na.rm=T)) %>%
   pivot_wider(names_from=Apparatus, values_from=score_sd)
+stddevs_df[is.na(stddevs_df)] <- 0.4 # replace all NA stddevs with 0.4
+print(sum(is.na(stddevs_df)))
+
 
 events <- c("VT", "BB", "UB", "FX", "HB", "PB", "PH", "SR")
 samples_df <- as.data.frame(matrix(nrow=dim(means_df)[1], ncol=length(events)))
@@ -40,7 +43,7 @@ for (i in 1:nrow(means_df)) {
 }
 
 # write the means and stddevs output files
-# write.csv(means_df, "data/means_per_app.csv", row.names = F)
-# write.csv(stddevs_df, "data/stddevs_per_app.csv", row.names = F)
-# write.csv(samples_df, "data/score_predictions.csv", row.names = F)
+write.csv(means_df, "data/means_per_app.csv", row.names = F)
+write.csv(stddevs_df, "data/stddevs_per_app.csv", row.names = F)
+write.csv(samples_df, "data/score_predictions.csv", row.names = F)
 print(colnames(samples_df))
