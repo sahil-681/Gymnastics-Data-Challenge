@@ -124,8 +124,11 @@ data = data %>%
                              "sam", FirstName),
          FirstName = ifelse(LastName == "stickler" & FirstName == "poppy grace", 
                              "poppy", FirstName),
-         Country   = ifelse(LastName == "stickler" & FirstName == "poppy", 
-                          "GBR", Country)
+         Country   = ifelse(LastName == "stickler" & FirstName == "poppy", "GBR", Country),
+         
+         Country = ifelse(LastName == "souza" & FirstName == "caio", "BRA", Country),
+         
+         Country = ifelse(LastName == "kovtun" & FirstName == "illia", "UKR", Country)
   ) %>% 
   arrange(LastName) %>%
   mutate(Apparatus = case_when(
