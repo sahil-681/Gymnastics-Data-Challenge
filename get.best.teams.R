@@ -3,6 +3,14 @@ stddevs = read.csv("data/stddevs_per_app.csv")
 startteams = read.csv("data/team_country_qualified_individuals.csv")
 alt36 <- read.csv("data/mens_36_athletes.csv")
 
+#### helper functions:
+
+## get reasonable set
+source('get_reasonable_set.R')
+
+## simulate medals
+source('simulate_medals.R')
+
 # helper function for replacing temp players for each combination
 replace_players <- function(start_teams, country, combinations, gender, i = 1) {
   start_teams[start_teams$Country == country & start_teams$Gender == gender, 
