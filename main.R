@@ -13,7 +13,7 @@ source('prep.data.R')
 ## fit.model.R will output the per-athlete per-apparatus means and stddevs of scores into "means_per_app.csv" and "stddevs_per_app.csv" respectively into the data/ folder
 source('fit.model.R')
 
-## final script to get best teams
-#source('get.best.teams.R')
+## final script to get best teams and the US team simulations for all reasonable combinations 
+#source('get.best.teams.R') ## will take 1.5-2 hours to run
 
 print("finished")
