@@ -269,6 +269,7 @@ simulate_medals <- function(top12teams, qual36, means_df, stddevs_df, gender, pt
     print(paste("Simulate medals took", end_t - start_t, "s"))
   }
 
+  country_medals = suppressWarnings(country_medals)
   return(country_medals)
 }
 
