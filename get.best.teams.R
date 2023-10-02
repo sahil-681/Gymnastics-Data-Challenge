@@ -2,6 +2,7 @@ means = read.csv("data/means_per_app.csv")
 stddevs = read.csv("data/stddevs_per_app.csv")
 startteams = read.csv("data/team_country_qualified_individuals.csv")
 alt36 <- read.csv("data/mens_36_athletes.csv")
+alt36w <- read.csv("data/womens_36_athletes.csv")
 
 #### helper functions:
 
@@ -24,6 +25,12 @@ medalscore <- function(sim_output, weights = c(50, 30, 15, 10, 9, 8, 7, 6)){
   sim_output$Score <- scores
   sim_output <- sim_output[order(sim_output$Score, decreasing = TRUE), ]
   return(sim_output)
+}
+
+# helper function to select players
+select_players <- function(players) {
+  selected_players <- sample(players, 4)
+  return(paste(selected_players, collapse = ", "))
 }
 
 # main function for best teams
@@ -119,23 +126,47 @@ get.best.teams <- function(start_teams, countries, gender, means_df,
   return(list(finalteams = start_teams, interestedteam = interested_sims))
 }
 
-# example (takes close to 2 hours to run)
+# mens (takes close to 2 hours to run)
 men_best <- get.best.teams(start_teams = startteams, 
                     countries = unique(startteams$Country[startteams$Gender == "m"]),
                     gender = "m",
                     means, 
                     stddevs, alt36, ctry_interest = "USA")
 
-# saved
-saveRDS(men_best, file = "data/best.teams.mens.rds")
+# creating apparatus-athlete combinations for country of interest
+## mens
+men_best$interestedteam$VT <- apply(men_best$interestedteam[, c("P1", "P2", "P3", "P4", "P5")], 1, random_select)
+men_best$interestedteam$FX <- apply(men_best$interestedteam[, c("P1", "P2", "P3", "P4", "P5")], 1, random_select)
+men_best$interestedteam$HB <- apply(men_best$interestedteam[, c("P1", "P2", "P3", "P4", "P5")], 1, random_select)
+men_best$interestedteam$PB <- apply(men_best$interestedteam[, c("P1", "P2", "P3", "P4", "P5")], 1, random_select)
+men_best$interestedteam$PH <- apply(men_best$interestedteam[, c("P1", "P2", "P3", "P4", "P5")], 1, random_select)
+men_best$interestedteam$SR <- apply(men_best$interestedteam[, c("P1", "P2", "P3", "P4", "P5")], 1, random_select)
 
-# example (takes close to 2 hours to run)
+men_best$interestedteam <- men_best$interestedteam[order(-men_best$interestedteam$TotalScore), ]
+
+# womens (takes close to 2 hours to run)
 women_best <- get.best.teams(start_teams = startteams, 
                     countries = unique(startteams$Country[startteams$Gender == "w"]),
                     gender = "w",
                     means, 
-                    stddevs, alt36, ctry_interest = "USA")
+                    stddevs, alt36w, ctry_interest = "USA")
+
+# creating apparatus-athlete combinations for country of interest
+## womens
+women_best$interestedteam$VT <- apply(women_best$interestedteam[, c("P1", "P2", "P3", "P4", "P5")], 1, random_select)
+women_best$interestedteam$BB <- apply(women_best$interestedteam[, c("P1", "P2", "P3", "P4", "P5")], 1, random_select)
+women_best$interestedteam$UB <- apply(women_best$interestedteam[, c("P1", "P2", "P3", "P4", "P5")], 1, random_select)
+women_best$interestedteam$FX <- apply(women_best$interestedteam[, c("P1", "P2", "P3", "P4", "P5")], 1, random_select)
+
+women_best$interestedteam <- women_best$interestedteam[order(-women_best$interestedteam$TotalScore), ]
 
 # saved
+saveRDS(men_best, file = "data/best.teams.mens.rds")
 saveRDS(women_best, file = "data/best.teams.womens.rds")
+
+# saving data as csv
+write.csv(women_best$finalteams, "data/optimized.womens.teams.csv")
+write.csv(men_best$finalteams, "data/optimized.mens.teams.csv")
+write.csv(women_best$interestedteam, "data/best.womens.teams.country.of.interest.csv")
+write.csv(men_best$interestedteam, "data/best.mens.teams.country.of.interest.csv")
 
