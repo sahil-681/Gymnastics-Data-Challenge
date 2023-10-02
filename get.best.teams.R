@@ -82,6 +82,14 @@ get.best.teams <- function(start_teams, countries, gender, means_df,
     sim <- simulate_medals(starttemp, qual36, means_df, stddevs_df, gender)
     sim <- medalscore(sim, weights)
     
+    if (l %% 50 == 0) {
+      print(paste("Simulation:", l, "of", length(combcountry2), "for", ctry_interest))
+    }
+    
+    if (l == length(combcountry2)) {
+      print(paste("Simulation:", l, "of", length(combcountry2), "for", ctry_interest))
+    }
+    
     if (sim$Score[sim$Country == ctry] > top_score) {
       top_score <- sim$Score[sim$Country == ctry]
       start_teams <- replace_players(start_teams, ctry, combinations, gender, l)
@@ -104,12 +112,22 @@ get.best.teams <- function(start_teams, countries, gender, means_df,
 }
 
 # example (takes close to 2 hours to run)
-z <- get.best.teams(start_teams = startteams, 
+men_best <- get.best.teams(start_teams = startteams, 
                     countries = unique(startteams$Country[startteams$Gender == "m"]),
                     gender = "m",
                     means, 
                     stddevs, alt36, ctry_interest = "USA")
 
 # saved
-saveRDS(z, file = "data/best.teams.rds")
+saveRDS(men_best, file = "data/best.teams.mens.rds")
+
+# example (takes close to 2 hours to run)
+women_best <- get.best.teams(start_teams = startteams, 
+                    countries = unique(startteams$Country[startteams$Gender == "w"]),
+                    gender = "w",
+                    means, 
+                    stddevs, alt36, ctry_interest = "USA")
+
+# saved
+saveRDS(women_best, file = "data/best.teams.womens.rds")
 
