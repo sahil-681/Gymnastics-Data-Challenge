@@ -165,8 +165,8 @@ saveRDS(men_best, file = "data/best.teams.mens.rds")
 saveRDS(women_best, file = "data/best.teams.womens.rds")
 
 # saving data as csv
-write.csv(women_best$finalteams, "data/optimized.womens.teams.csv")
-write.csv(men_best$finalteams, "data/optimized.mens.teams.csv")
-write.csv(women_best$interestedteam, "data/best.womens.teams.country.of.interest.csv")
-write.csv(men_best$interestedteam, "data/best.mens.teams.country.of.interest.csv")
+write.csv(women_best$finalteams, "data/optimized.womens.teams.csv", row.names = FALSE)
+write.csv(men_best$finalteams, "data/optimized.mens.teams.csv", row.names = FALSE)
+write.csv(women_best$interestedteam, "data/best.womens.teams.country.of.interest.csv", row.names = FALSE)
+write.csv(men_best$interestedteam, "data/best.mens.teams.country.of.interest.csv", row.names = FALSE)
 
