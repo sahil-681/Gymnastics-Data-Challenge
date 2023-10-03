@@ -156,6 +156,7 @@ data = data %>%
          Gender = ifelse(ID == "godwin_georgia" & Country == "AUS", "w", Gender),
          Country = ifelse(Country == "ENG", "GBR", Country),
          Country = ifelse(Country == "SCO", "GBR", Country),
+         Country = ifelse(Country == "WAL", "GBR", Country),
          Country = ifelse(ID == "aleksandrov_yordan" & Gender == "m", "BUL", Country),
          ID = ifelse(ID == "richard_frederick_nathaniel" & Country == "USA", "richard_frederick", ID),
          ID = ifelse(ID == "skirkey_ian_hunter" & Country == "USA", "skirkey_ian", ID),
@@ -165,6 +166,10 @@ data = data %>%
 data <- data[!(data$ID == "whitehead_emily" & data$Gender == "m"), ]
 data <- data[!(data$ID == "achampong_ondine" & data$Gender == "m"), ]
 
+# Use dplyr to fill missing or empty entries based on non-missing entries
+data <- data %>%
+  group_by(ID) %>%
+  mutate(Country = ifelse(any(!is.na(Country) & Country != ""), na.omit(Country)[1], NA))
 
 # output data (though fit.model.R doesn't reread data, but instead just uses the data object)
 write.csv(data, "data/cleaned_combined_data.csv", row.names = F)
