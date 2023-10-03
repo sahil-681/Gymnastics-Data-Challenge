@@ -1,0 +1,26 @@
+---
+title: "scratch_paper"
+output: html_document
+date: "2023-10-02"
+---
+
+
+```{r}
+means_df <- read.csv("data/means_per_app.csv")
+stddevs_df <- read.csv("data/stddevs_per_app.csv")
+top_12_teams <- read.csv("data/team_country_qualified_individuals.csv")
+alt36 <- read.csv("data/mens_36_athletes.csv")
+```
+
+```{r}
+source("new_simulate_medals.R")
+simulate_medals(top_12_teams, alt36, means, stddevs, "m", ptime=T)
+```
+```{r}
+means_df[means_df$Gender=="m", c("ID", "Country", "VT", "FX", "HB", "PB", "PH", "SR")]
+```
+
+```{r}
+sort(unique(means_df$Country))
+```
+
