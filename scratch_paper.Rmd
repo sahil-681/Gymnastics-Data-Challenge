@@ -17,10 +17,7 @@ alt36 <- read.csv("data/mens_36_athletes.csv")
 source("simulate_medals.R")
 simulate_medals(top_12_teams, alt36, means, stddevs, "m", ptime=T)
 ```
-```{r}
-source("old_simulate_medals.R")
-old_simulate_medals(top_12_teams, alt36, means, stddevs, "m", ptime=T)
-```
+
 
 
 

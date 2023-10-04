@@ -55,8 +55,14 @@ simulate_medals <- function(top12teams, qual36, means_df, stddevs_df, gender, pt
   
   quals_means <- rbind(t2_AA, t2_nAA) %>% group_by(Country, App) %>% slice_head(n = 4) # combine w/ AA-athletes first so that they are guaranteed, then also keep top non-AAs such that each app will have 4 total
   
+  # get IDs competing per country per apparatus, sorted in order
+  team_app_athletes <- quals_means %>% arrange(desc(Mean)) %>%
+    group_by(Country, App) %>% summarise(Athletes = toString(unique(ID)))
+  
   teamed_quals <- merge(quals_means, long_stddevs, # list of competing athletes also part of competing country (trying for team-finals)
                  all.x=T)
+  
+  print(quals_means)
   
   alt_quals <- qual36[, c("ID", "Country")] # get list of alternates (competitors not part of a qualified country)
   alt_quals <- merge(alt_quals, data.frame(App = apps), by=NULL)
@@ -137,7 +143,7 @@ simulate_medals <- function(top12teams, qual36, means_df, stddevs_df, gender, pt
   country_medals = suppressWarnings(country_medals)
   print(sum(country_medals$Total_Count))
   country_medals <- country_medals %>% pivot_wider(names_from=Place, values_from=Total_Count)
-  return(country_medals)
+  return(list(country_medals, team_app_athletes))
 }
 
 
