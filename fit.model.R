@@ -7,16 +7,21 @@ means_df <- data %>%
   summarise(score_mean = mean(Score, na.rm=T)) %>%
   pivot_wider(names_from=Apparatus, values_from=score_mean)
 
+events <- c("VT", "BB", "UB", "FX", "HB", "PB", "PH", "SR")
+
 # calculate the stddev of scores in the data per athlete per apparatus
 stddevs_df <- data %>%
   group_by(ID, Gender, Country, Apparatus) %>%
   summarise(score_sd = sd(Score, na.rm=T)) %>%
   pivot_wider(names_from=Apparatus, values_from=score_sd)
-stddevs_df[is.na(stddevs_df)] <- 0.4 # replace all NA stddevs with 0.4
-print(sum(is.na(stddevs_df)))
+
+# replace all gender-apparatus appropriate NA stddevs with 0.4
+stddevs_df[stddevs_df$Gender == "m", ] = stddevs_df[stddevs_df$Gender == "m", ] %>%
+  mutate_at(vars("VT", "FX", "HB", "PB", "PH", "SR"), ~ifelse(is.na(.), 0.4, .))
+stddevs_df[stddevs_df$Gender == "w", ] = stddevs_df[stddevs_df$Gender == "w", ] %>%
+  mutate_at(vars("VT", "BB", "UB", "FX"), ~ifelse(is.na(.), 0.4, .))
 
 
-events <- c("VT", "BB", "UB", "FX", "HB", "PB", "PH", "SR")
 samples_df <- as.data.frame(matrix(nrow=dim(means_df)[1], ncol=length(events)))
 colnames(samples_df) <- events
 
