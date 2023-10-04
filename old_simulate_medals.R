@@ -1,6 +1,6 @@
 # this function needs tidyr
 # call using: simulate_medals(top_12_teams, alt36, means, stddevs, g, ptime=T)
-simulate_medals <- function(top12teams, qual36, means_df, stddevs_df, gender, ptime=F){
+old_simulate_medals <- function(top12teams, qual36, means_df, stddevs_df, gender, ptime=F){
   start_t <- Sys.time()
   
   means_df <- means_df[means_df$Gender == gender, ]

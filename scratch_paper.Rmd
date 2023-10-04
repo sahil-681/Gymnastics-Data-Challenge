@@ -12,15 +12,15 @@ top_12_teams <- read.csv("data/team_country_qualified_individuals.csv")
 alt36 <- read.csv("data/mens_36_athletes.csv")
 ```
 
+
 ```{r}
-source("new_simulate_medals.R")
+source("simulate_medals.R")
 simulate_medals(top_12_teams, alt36, means, stddevs, "m", ptime=T)
 ```
 ```{r}
-means_df[means_df$Gender=="m", c("ID", "Country", "VT", "FX", "HB", "PB", "PH", "SR")]
+source("old_simulate_medals.R")
+old_simulate_medals(top_12_teams, alt36, means, stddevs, "m", ptime=T)
 ```
 
-```{r}
-sort(unique(means_df$Country))
-```
+
 
