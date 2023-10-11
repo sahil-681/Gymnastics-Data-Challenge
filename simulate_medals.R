@@ -20,7 +20,7 @@ tally_medals <- function(long_medals, countries, places){
   return(long_medals)
 }
 
-run_sims <- function(competitors, qual36, long_meanstds, gender, apps){
+run_sims <- function(competitors, qual36, long_meanstds, gender, apps, do_sampling=F){
   
   teamed_quals <- merge(competitors, long_meanstds, all.x=T)
   
@@ -31,8 +31,11 @@ run_sims <- function(competitors, qual36, long_meanstds, gender, apps){
   # 0. Generating qual scores 
   quals <- rbind(teamed_quals, alt_quals)
   samples_df <- quals %>% select(-c(Mean, Stddev))
-  # samples_df$Score <- rnorm(length(quals$ID), mean=quals$Mean, sd=quals$Stddev)
-  samples_df$Score <- quals$Mean # use mean better if only one sample
+  if(do_sampling){
+    samples_df$Score <- rnorm(length(quals$ID), mean=quals$Mean, sd=quals$Stddev)
+  }else{
+    samples_df$Score <- quals$Mean
+  }
   
   
   # 1. Team Qualifications 
@@ -72,8 +75,11 @@ run_sims <- function(competitors, qual36, long_meanstds, gender, apps){
   teamed_finals <- teamed_quals[teamed_quals$Country %in% qual_teams,]
   teamed_finals <- teamed_finals %>% group_by(Country, App) %>%
     arrange(desc(Mean)) %>% slice_head(n=3)
-  # teamed_finals$Score <- rnorm(length(teamed_finals$Mean), mean=teamed_finals$Mean, sd=teamed_finals$Stddev)
-  teamed_finals$Score <- teamed_finals$Mean # use mean if only one sample
+  if(do_sampling){
+    teamed_finals$Score <- rnorm(length(teamed_finals$Mean), mean=teamed_finals$Mean, sd=teamed_finals$Stddev)
+  }else{
+    teamed_finals$Score <- teamed_finals$Mean # use mean if only one sample 
+  }
   country_scores <- teamed_finals %>% group_by(Country) %>%
     summarise(Total_Score = sum(Score), NAs = sum(is.na(Score))) %>% arrange(desc(Total_Score))
   country_medals <- tally_medals(country_medals, country_scores$Country, places)
@@ -90,8 +96,11 @@ run_sims <- function(competitors, qual36, long_meanstds, gender, apps){
   # Simulate AA Finals(M)
   qual_aa <- merge(qual_aa, data.frame(App=apps), by=NULL)
   qual_aa <- merge(qual_aa, long_meanstds, all.x=T)
-  # qual_aa$Score <- rnorm(length(qual_aa$Mean), mean=qual_aa$Mean, sd=qual_aa$Stddev)
-  qual_aa$Score <- qual_aa$Mean # use mean if only trying one sample
+  if(do_sampling){
+    qual_aa$Score <- rnorm(length(qual_aa$Mean), mean=qual_aa$Mean, sd=qual_aa$Stddev)
+  }else{
+    qual_aa$Score <- qual_aa$Mean # use mean if only trying one sample 
+  }
   aa_scores <- qual_aa %>% group_by(ID, Country) %>%
     summarise(Total_Score = sum(Score), NAs = sum(is.na(Score))) %>%
     arrange(desc(Total_Score))
@@ -101,14 +110,17 @@ run_sims <- function(competitors, qual36, long_meanstds, gender, apps){
     App = "AA",
     Place = places,
     Score = aa_scores$Total_Score[1:8],
-    COuntry = aa_scores$Country[1:8],
+    Country = aa_scores$Country[1:8],
     ID = aa_scores$ID[1:8]
   )
   
   # Simulate Event Finals
   qual_ind <- merge(qual_ind, long_meanstds, all.x=T)
-  # qual_ind$Score <- rnorm(length(qual_ind$Mean), mean=qual_ind$Mean, sd=qual_ind$Stddev)
-  qual_ind$Score <- qual_ind$Mean # use mean if only trying one sample
+  if(do_sampling){
+    qual_ind$Score <- rnorm(length(qual_ind$Mean), mean=qual_ind$Mean, sd=qual_ind$Stddev)
+  }else{
+    qual_ind$Score <- qual_ind$Mean # use mean if only trying one sample
+  }
   ind_scores <- qual_ind %>% arrange(desc(Score)) %>% group_by(App) %>% mutate(Place=places)
   country_scores <- ind_scores[, c("Country", "Place")] %>% group_by(Country, Place) %>% summarise(Add = n())
   country_medals <- tally_medals(country_medals, country_scores, places)
@@ -120,8 +132,6 @@ run_sims <- function(competitors, qual36, long_meanstds, gender, apps){
 }
 
 
-
-# call using: simulate_medals(top_12_teams, alt36, means, stddevs, g, ptime=T)
 simulate_medals <- function(top12teams, qual36, means_df, stddevs_df, gender, ptime=F){
   start_t <- Sys.time()
   
@@ -156,13 +166,14 @@ simulate_medals <- function(top12teams, qual36, means_df, stddevs_df, gender, pt
   
   
   quals_means <- rbind(t2_AA, t2_nAA) %>% group_by(Country, App) %>% slice_head(n = 4) # combine w/ AA-athletes first so that they are guaranteed, then also keep top non-AAs such that each app will have 4 total
-  competitors <- quals_means[, c("ID", "Country", "App", "Mean")]
+  competitors <- quals_means[, c("ID", "Country", "App")]
   
   # get IDs competing per country per apparatus, sorted in order
   team_app_athletes <- quals_means %>% arrange(desc(Mean)) %>%
     group_by(Country, App) %>% summarise(Athletes = toString(unique(ID)))
   
-  sim_output <- run_sims(competitors, qual36, long_meanstds, gender, apps)
+  print(competitors)
+  sim_output <- run_sims(competitors, qual36, long_meanstds, gender, apps, do_sampling=F)
   
   end_t <- Sys.time()
   if(ptime == T){
