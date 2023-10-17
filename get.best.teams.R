@@ -142,7 +142,7 @@ get.best.teams <- function(start_teams, countries, gender, means_df,
     for (k in 1:length(combcountry)) {
       starttemp <- replace_players(start_teams, ctry, combinations, gender, k)
       sim <- simulate_medals(starttemp, qual36, means_df, stddevs_df, gender)
-      sim[[1]] <- medalscore(sim[[1]], weights)
+      sim$medals_table <- medalscore(sim$medals_table, weights)
       sim_count = sim_count + 1
       
       if (k %% 50 == 0) {
@@ -153,8 +153,8 @@ get.best.teams <- function(start_teams, countries, gender, means_df,
         print(paste("Running final simulation for", names(combinations[j])))
       }
       
-      if (sim[[1]]$Score[sim[[1]]$Country == ctry] > top_score) {
-        top_score <- sim[[1]]$Score[sim[[1]]$Country == ctry]
+      if (sim$medals_table$Score[sim$medals_table$Country == ctry] > top_score) {
+        top_score <- sim$medals_table$Score[sim$medals_table$Country == ctry]
         start_teams <- replace_players(start_teams, ctry, combinations, gender, k)
       }
       
@@ -165,37 +165,37 @@ get.best.teams <- function(start_teams, countries, gender, means_df,
       temp_sim[k, "P3"] <-  combinations[[ctry]][k][[1]][3]
       temp_sim[k, "P4"] <- combinations[[ctry]][k][[1]][4]
       temp_sim[k, "P5"] <- combinations[[ctry]][k][[1]][5]
-      temp_sim[k, "Gold"] <- sim[[1]]$First[sim[[1]]$Country == ctry]
-      temp_sim[k, "Silver"] <- sim[[1]]$Second[sim[[1]]$Country == ctry]
-      temp_sim[k, "Bronze"] <- sim[[1]]$Third[sim[[1]]$Country == ctry]
-      temp_sim[k, "TotalScore"] <- sim[[1]]$Score[sim[[1]]$Country == ctry]
-      temp_sim[k, "MedalCount"] <- sim[[1]]$First[sim[[1]]$Country == ctry] + 
-                                   sim[[1]]$Second[sim[[1]]$Country == ctry] + 
-                                   sim[[1]]$Third[sim[[1]]$Country == ctry]
+      temp_sim[k, "Gold"] <- sim$medals_table$First[sim$medals_table$Country == ctry]
+      temp_sim[k, "Silver"] <- sim$medals_table$Second[sim$medals_table$Country == ctry]
+      temp_sim[k, "Bronze"] <- sim$medals_table$Third[sim$medals_table$Country == ctry]
+      temp_sim[k, "TotalScore"] <- sim$medals_table$Score[sim$medals_table$Country == ctry]
+      temp_sim[k, "MedalCount"] <- sim$medals_table$First[sim$medals_table$Country == ctry] + 
+                                   sim$medals_table$Second[sim$medals_table$Country == ctry] + 
+                                   sim$medals_table$Third[sim$medals_table$Country == ctry]
       if (gender == "m") {
-        temp_sim[k, "VT"] <- sim[[2]]$Athletes[sim[[2]]$Country == ctry & 
-                                                 sim[[2]]$App == "VT"]
-        temp_sim[k, "FX"] <- sim[[2]]$Athletes[sim[[2]]$Country == ctry & 
-                                                 sim[[2]]$App == "FX"]
-        temp_sim[k, "HB"] <- sim[[2]]$Athletes[sim[[2]]$Country == ctry & 
-                                                 sim[[2]]$App == "HB"]
-        temp_sim[k, "PB"] <- sim[[2]]$Athletes[sim[[2]]$Country == ctry & 
-                                                 sim[[2]]$App == "PB"]
-        temp_sim[k, "PH"] <- sim[[2]]$Athletes[sim[[2]]$Country == ctry & 
-                                                 sim[[2]]$App == "PH"]
-        temp_sim[k, "SR"] <- sim[[2]]$Athletes[sim[[2]]$Country == ctry & 
-                                                 sim[[2]]$App == "SR"]
+        temp_sim[k, "VT"] <- sim$app_assignments$Athletes[sim$app_assignments$Country == ctry & 
+                                                 sim$app_assignments$App == "VT"]
+        temp_sim[k, "FX"] <- sim$app_assignments$Athletes[sim$app_assignments$Country == ctry & 
+                                                 sim$app_assignments$App == "FX"]
+        temp_sim[k, "HB"] <- sim$app_assignments$Athletes[sim$app_assignments$Country == ctry & 
+                                                 sim$app_assignments$App == "HB"]
+        temp_sim[k, "PB"] <- sim$app_assignments$Athletes[sim$app_assignments$Country == ctry & 
+                                                 sim$app_assignments$App == "PB"]
+        temp_sim[k, "PH"] <- sim$app_assignments$Athletes[sim$app_assignments$Country == ctry & 
+                                                 sim$app_assignments$App == "PH"]
+        temp_sim[k, "SR"] <- sim$app_assignments$Athletes[sim$app_assignments$Country == ctry & 
+                                                 sim$app_assignments$App == "SR"]
       }
       
       if (gender == "w") {
-        temp_sim[k, "VT"] <- sim[[2]]$Athletes[sim[[2]]$Country == ctry & 
-                                                 sim[[2]]$App == "VT"]
-        temp_sim[k, "BB"] <- sim[[2]]$Athletes[sim[[2]]$Country == ctry & 
-                                                 sim[[2]]$App == "BB"]
-        temp_sim[k, "UB"] <- sim[[2]]$Athletes[sim[[2]]$Country == ctry & 
-                                                 sim[[2]]$App == "UB"]
-        temp_sim[k, "FX"] <- sim[[2]]$Athletes[sim[[2]]$Country == ctry & 
-                                                 sim[[2]]$App == "FX"]
+        temp_sim[k, "VT"] <- sim$app_assignments$Athletes[sim$app_assignments$Country == ctry & 
+                                                 sim$app_assignments$App == "VT"]
+        temp_sim[k, "BB"] <- sim$app_assignments$Athletes[sim$app_assignments$Country == ctry & 
+                                                 sim$app_assignments$App == "BB"]
+        temp_sim[k, "UB"] <- sim$app_assignments$Athletes[sim$app_assignments$Country == ctry & 
+                                                 sim$app_assignments$App == "UB"]
+        temp_sim[k, "FX"] <- sim$app_assignments$Athletes[sim$app_assignments$Country == ctry & 
+                                                 sim$app_assignments$App == "FX"]
       }
         
     }
@@ -205,23 +205,34 @@ get.best.teams <- function(start_teams, countries, gender, means_df,
   return(list(optimizedteams = start_teams, simresults = all_sims))
 }
 
-# mens (takes close to 2 hours to run)
-men_best <- get.best.teams(start_teams = startteams,
-                    countries = unique(startteams$Country[startteams$Gender == "m"]),
-                    gender = "m",
-                    means,
-                    stddevs, alt36m)
 
+# start.time <- Sys.time()
+# # mens (takes close to 2 hours to run)
+# men_best <- get.best.teams(start_teams = startteams,
+#                            countries = unique(startteams$Country[startteams$Gender == "m"]),
+#                            gender = "m",
+#                            means,
+#                            stddevs, alt36m)
+# end.time <- Sys.time()
+# time.taken.mens <- round(end.time - start.time,2)
+# time.taken.mens
+
+
+# saveRDS("best.teams.mens.rds")
 #### men_best <- readRDS("data/best.teams.mens.rds")
 
 # men_best$simresults <- men_best$simresults[order(-men_best$interestedteam$TotalScore), ]
 
-# womens (takes close to 1 hours to run)
-#women_best <- get.best.teams(start_teams = startteams, 
-                    # countries = unique(startteams$Country[startteams$Gender == "w"]),
-                    # gender = "w",
-                    # means, 
-                    # stddevs, alt36w)
+# start.time <- Sys.time()
+# # womens (takes close to 1 hours to run)
+# women_best <- get.best.teams(start_teams = startteams,
+#                     countries = unique(startteams$Country[startteams$Gender == "w"]),
+#                     gender = "w",
+#                     means,
+#                     stddevs, alt36w)
+# end.time <- Sys.time()
+# time.taken.mens <- round(end.time - start.time,2)
+# time.taken.mens
 
 #### women_best <- readRDS("data/best.teams.womens.rds")
 
