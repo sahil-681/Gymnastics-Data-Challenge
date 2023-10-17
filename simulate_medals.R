@@ -36,9 +36,9 @@ run_sims <- function(competitors, qual36, long_meanstds, gender, apps){
   
   
   # 1. Team Qualifications 
-  country_scores <- samples_df[samples_df$Country %in% teamed_quals$Country,] %>%
+  country_scores <- suppressMessages(samples_df[samples_df$Country %in% teamed_quals$Country,] %>%
     group_by(Country, App) %>% slice_max(order_by=Score, n = 3) %>% ungroup %>%
-    group_by(Country) %>% summarise(Total_Score = sum(Score)) %>% arrange(desc(Total_Score))
+    group_by(Country) %>% summarise(Total_Score = sum(Score)) %>% arrange(desc(Total_Score)))
   qual_teams <- country_scores$Country[1:8]
   
   
@@ -74,8 +74,8 @@ run_sims <- function(competitors, qual36, long_meanstds, gender, apps){
     arrange(desc(Mean)) %>% slice_head(n=3)
   # teamed_finals$Score <- rnorm(length(teamed_finals$Mean), mean=teamed_finals$Mean, sd=teamed_finals$Stddev)
   teamed_finals$Score <- teamed_finals$Mean # use mean if only one sample
-  country_scores <- teamed_finals %>% group_by(Country) %>%
-    summarise(Total_Score = sum(Score), NAs = sum(is.na(Score))) %>% arrange(desc(Total_Score))
+  country_scores <- suppressMessages(teamed_finals %>% group_by(Country) %>%
+    summarise(Total_Score = sum(Score), NAs = sum(is.na(Score))) %>% arrange(desc(Total_Score)))
   country_medals <- tally_medals(country_medals, country_scores$Country, places)
   
   medal_detail_slots[[1]] <- data.frame(
@@ -92,16 +92,16 @@ run_sims <- function(competitors, qual36, long_meanstds, gender, apps){
   qual_aa <- merge(qual_aa, long_meanstds, all.x=T)
   # qual_aa$Score <- rnorm(length(qual_aa$Mean), mean=qual_aa$Mean, sd=qual_aa$Stddev)
   qual_aa$Score <- qual_aa$Mean # use mean if only trying one sample
-  aa_scores <- qual_aa %>% group_by(ID, Country) %>%
+  aa_scores <- suppressMessages(qual_aa %>% group_by(ID, Country) %>%
     summarise(Total_Score = sum(Score), NAs = sum(is.na(Score))) %>%
-    arrange(desc(Total_Score))
+    arrange(desc(Total_Score)))
   top8_countries <- aa_scores$Country[1:8]
   country_medals <- tally_medals(country_medals, top8_countries, places)
   medal_detail_slots[[2]] <- data.frame(
     App = "AA",
     Place = places,
     Score = aa_scores$Total_Score[1:8],
-    COuntry = aa_scores$Country[1:8],
+    Country = aa_scores$Country[1:8],
     ID = aa_scores$ID[1:8]
   )
   
@@ -110,7 +110,7 @@ run_sims <- function(competitors, qual36, long_meanstds, gender, apps){
   # qual_ind$Score <- rnorm(length(qual_ind$Mean), mean=qual_ind$Mean, sd=qual_ind$Stddev)
   qual_ind$Score <- qual_ind$Mean # use mean if only trying one sample
   ind_scores <- qual_ind %>% arrange(desc(Score)) %>% group_by(App) %>% mutate(Place=places)
-  country_scores <- ind_scores[, c("Country", "Place")] %>% group_by(Country, Place) %>% summarise(Add = n())
+  country_scores <- suppressMessages(ind_scores[, c("Country", "Place")] %>% group_by(Country, Place) %>% summarise(Add = n()))
   country_medals <- tally_medals(country_medals, country_scores, places)
   medal_detail_slots[[3]] <- ind_scores[, c("App", "Place", "Score", "Country", "ID")]
   
@@ -159,8 +159,8 @@ simulate_medals <- function(top12teams, qual36, means_df, stddevs_df, gender, pt
   competitors <- quals_means[, c("ID", "Country", "App", "Mean")]
   
   # get IDs competing per country per apparatus, sorted in order
-  team_app_athletes <- quals_means %>% arrange(desc(Mean)) %>%
-    group_by(Country, App) %>% summarise(Athletes = toString(unique(ID)))
+  team_app_athletes <- suppressMessages(quals_means %>% arrange(desc(Mean)) %>%
+    group_by(Country, App) %>% summarise(Athletes = toString(unique(ID))))
   
   sim_output <- run_sims(competitors, qual36, long_meanstds, gender, apps)
   

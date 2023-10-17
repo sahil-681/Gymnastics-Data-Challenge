@@ -1,3 +1,5 @@
+library(stringr)
+
 # Preparing d1
 
 # Cleaning dates
@@ -170,6 +172,14 @@ data <- data[!(data$ID == "achampong_ondine" & data$Gender == "m"), ]
 data <- data %>%
   group_by(ID) %>%
   mutate(Country = ifelse(any(!is.na(Country) & Country != ""), na.omit(Country)[1], NA))
+
+data <- data %>%
+  group_by(ID) %>%
+  mutate(
+    LastName = first(LastName),
+    FirstName = first(FirstName),
+    FullName = str_to_title(paste(FirstName, LastName, sep = " ")),
+    )
 
 # output data (though fit.model.R doesn't reread data, but instead just uses the data object)
 write.csv(data, "data/cleaned_combined_data.csv", row.names = F)
