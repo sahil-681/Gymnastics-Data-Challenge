@@ -1,58 +1,22 @@
 ---
 title: "scratch_paper"
 output: html_document
-date: "2023-10-02"
+date: "2023-10-17"
 ---
 
-
 ```{r}
-means_df <- read.csv("data/means_per_app.csv")
-stddevs_df <- read.csv("data/stddevs_per_app.csv")
-top_12_teams <- read.csv("data/optimized.womens.teams.csv")
-alt36 <- read.csv("data/womens_36_athletes.csv")
-```
+library(dplyr)
 
 
-```{r}
-source("simulate_medals.R")
-simulate_medals(top_12_teams, alt36, means_df, stddevs_df, "w", ptime=T)
-```
-
-
-```{r}
-data_list <- list()
-data_list[[1]] <- data.frame(
-  ID = c("a", "b", "c"),
-  App = "Team",
-  Country = c("ESA", "USA", "GBR")
-)
-data_list[[2]] <- data.frame(
-  ID = c("a", "b", "c"),
-  App = "AA",
-  Country = c("ieh", "GBR", "USA")
-)
-data_list[[3]] <- data.frame(
-  ID = c("a", "b", "c"),
-  App = "VT",
-  Country = c("ieh", "GBR", "USA")
-)
+setwd("C:/Users/Raymond/Documents/Classes/SDS625/Gymnastics-Data-Challenge/gymnastics copy")
+men_best <- readRDS("best.teams.mens.rds")
+women_best <- readRDS("best.teams.womens.rds")
+means_df <- readRDS("means_df.rds")
+key <- readRDS("name_ID_key.rds")
+source("query.existing.database.R")
 ```
 
 ```{r}
-rbindlist(data_list)
+means_df
 ```
-
-```{r}
-start <- Sys.time()
-asdf <- rnorm(1000, 30, 5)
-print(Sys.time() - start)
-```
-
-```{r}
-start <- Sys.time()
-asdf <- rnorm(1, 30, 5)
-print(Sys.time() - start)
-```
-
-
 
