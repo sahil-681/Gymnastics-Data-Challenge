@@ -1,6 +1,5 @@
 library(tidyverse)
 library(data.table)
-source("run_sims.R")
 
 tally_medals <- function(long_medals, countries, places){
   
