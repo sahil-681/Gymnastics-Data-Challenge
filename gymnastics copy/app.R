@@ -1,11 +1,37 @@
 library(shiny)
 library(dplyr)
+library(glue)
 
-men_best <- readRDS("best.teams.mens.rds")
+men_best <- readRDS("best.teams.mens.rds") # OPTIMIZED T
 women_best <- readRDS("best.teams.womens.rds")
 means_df <- readRDS("means_df.rds")
 key <- readRDS("name_ID_key.rds")
+men_countries <- c("JPN", "USA", "GBR", "CAN", "GER", "ITA", "SUI", "CHN", "ESP", "BRA",  "KOR", "FRA")
+women_countries <- c("USA", "GBR", "CAN", "BRA", "ITA", "CHN", "JPN", "FRA", "ROC", "AUS", "GER", "BEL")
+men_apps <- c("VT", "FX", "HB", "PB", "PH", "SR")
+women_apps <- c("VT", "BB", "UB", "FX")
+
+app_fullname <- list(
+  "VT" = "Vault",
+  "FX" = "Floor Exercise",
+  "PB" = "Parallel Bars",
+  "PH" = "Pummel Horse",
+  "HB" = "Horizontal Bar",
+  "SR" = "Rings",
+  "BB" = "Balance Beam",
+  "UB" = "Uneven Bars"
+)
+
 source("query.existing.database.R")
+
+get_app_gender <- function(input){
+  if(input=="Men"){
+    return(men_apps)
+  }else{
+    return(women_apps)
+  }
+}
+
 
 ui <- fluidPage(
   titlePanel("Olympic Gymnastics Analysis"),
@@ -53,179 +79,123 @@ ui <- fluidPage(
     ),
     
     
-    tabPanel("Run Men Custom Simulation",
+    tabPanel("Run Custom Simulation",
         
-        selectizeInput("JPN_athletes", "Japanese Athletes (5):", choices=na.omit(get_names_for_IDs(means_df$ID[means_df$Country == "JPN" & means_df$Gender == "m"], key)), multiple=TRUE, options = list(maxItems = 5)),
-        checkboxInput("JPN_apps", "Custom assign apparatus"),
+        selectInput("simgender", "Gender: ", c("Men", "Women")),
+        
+        div(style = "height: 50px;"),
+        column(4, selectizeInput("T1_athletes", glue("{men_countries[1]} Athletes (5):"), choices=NULL, multiple=TRUE, options = list(maxItems = 5))),
+        column(4, checkboxInput("T1_apps", "Custom assign apparatus")),
         fluidRow(class = "bordered-row",
-          conditionalPanel(condition="input.JPN_apps == 1", style = "margin-left: 50px;",
-          
-            column(6, selectizeInput("JPN_VT", "Vault (4)", choices=NULL, multiple=TRUE, options = list(maxItems = 4))),
-            column(6, selectizeInput("JPN_FX", "Floor (4)", choices=NULL, multiple=TRUE, options = list(maxItems = 4))),
-            column(6, selectizeInput("JPN_HB", "Horizontal Bar (4)", choices=NULL, multiple=TRUE, options = list(maxItems = 4))),
-            column(6, selectizeInput("JPN_PB", "Parallel Bars (4)", choices=NULL, multiple=TRUE, options = list(maxItems = 4))),
-            column(6, selectizeInput("JPN_PH", "Pommel Horse (4)", choices=NULL, multiple=TRUE, options = list(maxItems = 4))),
-            column(6, selectizeInput("JPN_SR", "Rings (4)", choices=NULL, multiple=TRUE, options = list(maxItems = 4)))
+          conditionalPanel(condition="input.T1_apps == 1", style = "margin-left: 50px;",
+                           uiOutput("T1_appbox")
           )
         ),
         
-        selectizeInput("USA_athletes", "American Athletes (Choose 5):", choices=na.omit(get_names_for_IDs(means_df$ID[means_df$Country == "USA" & means_df$Gender == "m"], key)), multiple=TRUE, options = list(maxItems = 5)),
-        checkboxInput("USA_apps", "Custom assign apparatus"),
+        div(style = "height: 30px;"),
+        column(4, selectizeInput("T2_athletes", glue("{men_countries[2]} Athletes (5):"), choices=NULL, multiple=TRUE, options = list(maxItems = 5))),
+        column(4, checkboxInput("T2_apps", "Custom assign apparatus")),
         fluidRow(class = "bordered-row",
-                 conditionalPanel(condition="input.USA_apps == 1", style = "margin-left: 50px;",
-                                  
-                                  column(6, selectizeInput("USA_VT", "Vault (4)", choices=NULL, multiple=TRUE, options = list(maxItems = 4))),
-                                  column(6, selectizeInput("USA_FX", "Floor (4)", choices=NULL, multiple=TRUE, options = list(maxItems = 4))),
-                                  column(6, selectizeInput("USA_HB", "Horizontal Bar (4)", choices=NULL, multiple=TRUE, options = list(maxItems = 4))),
-                                  column(6, selectizeInput("USA_PB", "Parallel Bars (4)", choices=NULL, multiple=TRUE, options = list(maxItems = 4))),
-                                  column(6, selectizeInput("USA_PH", "Pommel Horse (4)", choices=NULL, multiple=TRUE, options = list(maxItems = 4))),
-                                  column(6, selectizeInput("USA_SR", "Rings (4)", choices=NULL, multiple=TRUE, options = list(maxItems = 4)))
+          conditionalPanel(condition="input.T2_apps == 1", style = "margin-left: 50px;",
+                          uiOutput("T2_appbox")
+          )
+        ),
+        
+        div(style = "height: 30px;"),
+        column(4, selectizeInput("T3_athletes", glue("{men_countries[3]} Athletes (5):"), choices=NULL, multiple=TRUE, options = list(maxItems = 5))),
+        column(4, checkboxInput("T3_apps", "Custom assign apparatus")),
+        fluidRow(class = "bordered-row",
+          conditionalPanel(condition="input.T3_apps == 1", style = "margin-left: 50px;",
+                          uiOutput("T3_appbox")
+          
+          )
+        ),
+        
+        div(style = "height: 30px;"),
+        column(4, selectizeInput("T4_athletes", glue("{men_countries[4]} Athletes (5):"), choices=NULL, multiple=TRUE, options = list(maxItems = 5))),
+        column(4, checkboxInput("T4_apps", "Custom assign apparatus")),
+        fluidRow(class = "bordered-row",
+                 conditionalPanel(condition="input.T4_apps == 1", style = "margin-left: 50px;",
+                                  uiOutput("T4_appbox")
                  )
         ),
         
-        selectizeInput("GBR_athletes", "British Athletes (Choose 5):", choices=na.omit(get_names_for_IDs(means_df$ID[means_df$Country == "GBR" & means_df$Gender == "m"], key)), multiple=TRUE, options = list(maxItems = 5)),
-        checkboxInput("GBR_apps", "Custom assign apparatus"),
+        div(style = "height: 30px;"),
+        column(4, selectizeInput("T5_athletes", glue("{men_countries[5]} Athletes (5):"), choices=NULL, multiple=TRUE, options = list(maxItems = 5))),
+        column(4, checkboxInput("T5_apps", "Custom assign apparatus")),
         fluidRow(class = "bordered-row",
-                 conditionalPanel(condition="input.GBR_apps == 1", style = "margin-left: 50px;",
-                                  
-                                  column(6, selectizeInput("GBR_VT", "Vault (4)", choices=NULL, multiple=TRUE, options = list(maxItems = 4))),
-                                  column(6, selectizeInput("GBR_FX", "Floor (4)", choices=NULL, multiple=TRUE, options = list(maxItems = 4))),
-                                  column(6, selectizeInput("GBR_HB", "Horizontal Bar (4)", choices=NULL, multiple=TRUE, options = list(maxItems = 4))),
-                                  column(6, selectizeInput("GBR_PB", "Parallel Bars (4)", choices=NULL, multiple=TRUE, options = list(maxItems = 4))),
-                                  column(6, selectizeInput("GBR_PH", "Pommel Horse (4)", choices=NULL, multiple=TRUE, options = list(maxItems = 4))),
-                                  column(6, selectizeInput("GBR_SR", "Rings (4)", choices=NULL, multiple=TRUE, options = list(maxItems = 4)))
+                 conditionalPanel(condition="input.T5_apps == 1", style = "margin-left: 50px;",
+                                  uiOutput("T5_appbox")
                  )
         ),
         
-        selectizeInput("CAN_athletes", "Canadian Athletes (Choose 5):", choices=na.omit(get_names_for_IDs(means_df$ID[means_df$Country == "CAN" & means_df$Gender == "m"], key)), multiple=TRUE, options = list(maxItems = 5)),
-        checkboxInput("CAN_apps", "Custom assign apparatus"),
+        div(style = "height: 30px;"),
+        column(4, selectizeInput("T6_athletes", glue("{men_countries[6]} Athletes (5):"), choices=NULL, multiple=TRUE, options = list(maxItems = 5))),
+        column(4, checkboxInput("T6_apps", "Custom assign apparatus")),
         fluidRow(class = "bordered-row",
-                 conditionalPanel(condition="input.CAN_apps == 1", style = "margin-left: 50px;",
-                                  
-                                  column(6, selectizeInput("CAN_VT", "Vault (4)", choices=NULL, multiple=TRUE, options = list(maxItems = 4))),
-                                  column(6, selectizeInput("CAN_FX", "Floor (4)", choices=NULL, multiple=TRUE, options = list(maxItems = 4))),
-                                  column(6, selectizeInput("CAN_HB", "Horizontal Bar (4)", choices=NULL, multiple=TRUE, options = list(maxItems = 4))),
-                                  column(6, selectizeInput("CAN_PB", "Parallel Bars (4)", choices=NULL, multiple=TRUE, options = list(maxItems = 4))),
-                                  column(6, selectizeInput("CAN_PH", "Pommel Horse (4)", choices=NULL, multiple=TRUE, options = list(maxItems = 4))),
-                                  column(6, selectizeInput("CAN_SR", "Rings (4)", choices=NULL, multiple=TRUE, options = list(maxItems = 4)))
+                 conditionalPanel(condition="input.T6_apps == 1", style = "margin-left: 50px;",
+                                  uiOutput("T6_appbox")
                  )
         ),
         
-        selectizeInput("GER_athletes", "German Athletes (Choose 5):", choices=na.omit(get_names_for_IDs(means_df$ID[means_df$Country == "GER" & means_df$Gender == "m"], key)), multiple=TRUE, options = list(maxItems = 5)),
-        checkboxInput("GER_apps", "Custom assign apparatus"),
+        div(style = "height: 30px;"),
+        column(4, selectizeInput("T7_athletes", glue("{men_countries[7]} Athletes (5):"), choices=NULL, multiple=TRUE, options = list(maxItems = 5))),
+        column(4, checkboxInput("T7_apps", "Custom assign apparatus")),
         fluidRow(class = "bordered-row",
-                 conditionalPanel(condition="input.GER_apps == 1", style = "margin-left: 50px;",
-                                  
-                                  column(6, selectizeInput("GER_VT", "Vault (4)", choices=NULL, multiple=TRUE, options = list(maxItems = 4))),
-                                  column(6, selectizeInput("GER_FX", "Floor (4)", choices=NULL, multiple=TRUE, options = list(maxItems = 4))),
-                                  column(6, selectizeInput("GER_HB", "Horizontal Bar (4)", choices=NULL, multiple=TRUE, options = list(maxItems = 4))),
-                                  column(6, selectizeInput("GER_PB", "Parallel Bars (4)", choices=NULL, multiple=TRUE, options = list(maxItems = 4))),
-                                  column(6, selectizeInput("GER_PH", "Pommel Horse (4)", choices=NULL, multiple=TRUE, options = list(maxItems = 4))),
-                                  column(6, selectizeInput("GER_SR", "Rings (4)", choices=NULL, multiple=TRUE, options = list(maxItems = 4)))
+                 conditionalPanel(condition="input.T7_apps == 1", style = "margin-left: 50px;",
+                                  uiOutput("T7_appbox")
                  )
         ),
         
-        selectizeInput("ITA_athletes", "Italian Athletes (Choose 5):", choices=na.omit(get_names_for_IDs(means_df$ID[means_df$Country == "ITA" & means_df$Gender == "m"], key)), multiple=TRUE, options = list(maxItems = 5)),
-        checkboxInput("ITA_apps", "Custom assign apparatus"),
+        div(style = "height: 30px;"),
+        column(4, selectizeInput("T8_athletes", glue("{men_countries[8]} Athletes (5):"), choices=NULL, multiple=TRUE, options = list(maxItems = 5))),
+        column(4, checkboxInput("T8_apps", "Custom assign apparatus")),
         fluidRow(class = "bordered-row",
-                 conditionalPanel(condition="input.ITA_apps == 1", style = "margin-left: 50px;",
-                                  
-                                  column(6, selectizeInput("ITA_VT", "Vault (4)", choices=NULL, multiple=TRUE, options = list(maxItems = 4))),
-                                  column(6, selectizeInput("ITA_FX", "Floor (4)", choices=NULL, multiple=TRUE, options = list(maxItems = 4))),
-                                  column(6, selectizeInput("ITA_HB", "Horizontal Bar (4)", choices=NULL, multiple=TRUE, options = list(maxItems = 4))),
-                                  column(6, selectizeInput("ITA_PB", "Parallel Bars (4)", choices=NULL, multiple=TRUE, options = list(maxItems = 4))),
-                                  column(6, selectizeInput("ITA_PH", "Pommel Horse (4)", choices=NULL, multiple=TRUE, options = list(maxItems = 4))),
-                                  column(6, selectizeInput("ITA_SR", "Rings (4)", choices=NULL, multiple=TRUE, options = list(maxItems = 4)))
+                 conditionalPanel(condition="input.T8_apps == 1", style = "margin-left: 50px;",
+                                  uiOutput("T8_appbox")
                  )
         ),
         
-        selectizeInput("SUI_athletes", "Swiss Athletes (Choose 5):", choices=na.omit(get_names_for_IDs(means_df$ID[means_df$Country == "SUI" & means_df$Gender == "m"], key)), multiple=TRUE, options = list(maxItems = 5)),
-        checkboxInput("SUI_apps", "Custom assign apparatus"),
+        div(style = "height: 30px;"),
+        column(4, selectizeInput("T9_athletes", glue("{men_countries[9]} Athletes (5):"), choices=NULL, multiple=TRUE, options = list(maxItems = 5))),
+        column(4, checkboxInput("T9_apps", "Custom assign apparatus")),
         fluidRow(class = "bordered-row",
-                 conditionalPanel(condition="input.SUI_apps == 1", style = "margin-left: 50px;",
-                                  
-                                  column(6, selectizeInput("SUI_VT", "Vault (4)", choices=NULL, multiple=TRUE, options = list(maxItems = 4))),
-                                  column(6, selectizeInput("SUI_FX", "Floor (4)", choices=NULL, multiple=TRUE, options = list(maxItems = 4))),
-                                  column(6, selectizeInput("SUI_HB", "Horizontal Bar (4)", choices=NULL, multiple=TRUE, options = list(maxItems = 4))),
-                                  column(6, selectizeInput("SUI_PB", "Parallel Bars (4)", choices=NULL, multiple=TRUE, options = list(maxItems = 4))),
-                                  column(6, selectizeInput("SUI_PH", "Pommel Horse (4)", choices=NULL, multiple=TRUE, options = list(maxItems = 4))),
-                                  column(6, selectizeInput("SUI_SR", "Rings (4)", choices=NULL, multiple=TRUE, options = list(maxItems = 4)))
+                 conditionalPanel(condition="input.T9_apps == 1", style = "margin-left: 50px;",
+                                  uiOutput("T9_appbox")
                  )
         ),
         
-        selectizeInput("CHN_athletes", "Chinese Athletes (Choose 5):", choices=na.omit(get_names_for_IDs(means_df$ID[means_df$Country == "CHN" & means_df$Gender == "m"], key)), multiple=TRUE, options = list(maxItems = 5)),
-        checkboxInput("CHN_apps", "Custom assign apparatus"),
+        div(style = "height: 30px;"),
+        column(4, selectizeInput("T10_athletes", glue("{men_countries[10]} Athletes (5):"), choices=NULL, multiple=TRUE, options = list(maxItems = 5))),
+        column(4, checkboxInput("T10_apps", "Custom assign apparatus")),
         fluidRow(class = "bordered-row",
-                 conditionalPanel(condition="input.CHN_apps == 1", style = "margin-left: 50px;",
-                                  
-                                  column(6, selectizeInput("CHN_VT", "Vault (4)", choices=NULL, multiple=TRUE, options = list(maxItems = 4))),
-                                  column(6, selectizeInput("CHN_FX", "Floor (4)", choices=NULL, multiple=TRUE, options = list(maxItems = 4))),
-                                  column(6, selectizeInput("CHN_HB", "Horizontal Bar (4)", choices=NULL, multiple=TRUE, options = list(maxItems = 4))),
-                                  column(6, selectizeInput("CHN_PB", "Parallel Bars (4)", choices=NULL, multiple=TRUE, options = list(maxItems = 4))),
-                                  column(6, selectizeInput("CHN_PH", "Pommel Horse (4)", choices=NULL, multiple=TRUE, options = list(maxItems = 4))),
-                                  column(6, selectizeInput("CHN_SR", "Rings (4)", choices=NULL, multiple=TRUE, options = list(maxItems = 4)))
+                 conditionalPanel(condition="input.T10_apps == 1", style = "margin-left: 50px;",
+                                  uiOutput("T10_appbox")
                  )
         ),
         
-        selectizeInput("ESP_athletes", "Spanish Athletes (Choose 5):", choices=na.omit(get_names_for_IDs(means_df$ID[means_df$Country == "ESP" & means_df$Gender == "m"], key)), multiple=TRUE, options = list(maxItems = 5)),
-        checkboxInput("ESP_apps", "Custom assign apparatus"),
+        div(style = "height: 30px;"),
+        column(4, selectizeInput("T11_athletes", glue("{men_countries[11]} Athletes (5):"), choices=NULL, multiple=TRUE, options = list(maxItems = 5))),
+        column(4, checkboxInput("T11_apps", "Custom assign apparatus")),
         fluidRow(class = "bordered-row",
-                 conditionalPanel(condition="input.ESP_apps == 1", style = "margin-left: 50px;",
-                                  
-                                  column(6, selectizeInput("ESP_VT", "Vault (4)", choices=NULL, multiple=TRUE, options = list(maxItems = 4))),
-                                  column(6, selectizeInput("ESP_FX", "Floor (4)", choices=NULL, multiple=TRUE, options = list(maxItems = 4))),
-                                  column(6, selectizeInput("ESP_HB", "Horizontal Bar (4)", choices=NULL, multiple=TRUE, options = list(maxItems = 4))),
-                                  column(6, selectizeInput("ESP_PB", "Parallel Bars (4)", choices=NULL, multiple=TRUE, options = list(maxItems = 4))),
-                                  column(6, selectizeInput("ESP_PH", "Pommel Horse (4)", choices=NULL, multiple=TRUE, options = list(maxItems = 4))),
-                                  column(6, selectizeInput("ESP_SR", "Rings (4)", choices=NULL, multiple=TRUE, options = list(maxItems = 4)))
+                 conditionalPanel(condition="input.T11_apps == 1", style = "margin-left: 50px;",
+                                  uiOutput("T11_appbox")
                  )
         ),
         
-        selectizeInput("TUR_athletes", "Turkish Athletes (Choose 5):", choices=na.omit(get_names_for_IDs(means_df$ID[means_df$Country == "TUR" & means_df$Gender == "m"], key)), multiple=TRUE, options = list(maxItems = 5)),
-        checkboxInput("TUR_apps", "Custom assign apparatus"),
+        div(style = "height: 30px;"),
+        column(4, selectizeInput("T12_athletes", glue("{men_countries[12]} Athletes (5):"), choices=NULL, multiple=TRUE, options = list(maxItems = 5))),
+        column(4, checkboxInput("T12_apps", "Custom assign apparatus")),
         fluidRow(class = "bordered-row",
-                 conditionalPanel(condition="input.TUR_apps == 1", style = "margin-left: 50px;",
-                                  
-                                  column(6, selectizeInput("TUR_VT", "Vault (4)", choices=NULL, multiple=TRUE, options = list(maxItems = 4))),
-                                  column(6, selectizeInput("TUR_FX", "Floor (4)", choices=NULL, multiple=TRUE, options = list(maxItems = 4))),
-                                  column(6, selectizeInput("TUR_HB", "Horizontal Bar (4)", choices=NULL, multiple=TRUE, options = list(maxItems = 4))),
-                                  column(6, selectizeInput("TUR_PB", "Parallel Bars (4)", choices=NULL, multiple=TRUE, options = list(maxItems = 4))),
-                                  column(6, selectizeInput("TUR_PH", "Pommel Horse (4)", choices=NULL, multiple=TRUE, options = list(maxItems = 4))),
-                                  column(6, selectizeInput("TUR_SR", "Rings (4)", choices=NULL, multiple=TRUE, options = list(maxItems = 4)))
+                 conditionalPanel(condition="input.T12_apps == 1", style = "margin-left: 50px;",
+                                  uiOutput("T12_appbox")
                  )
-        ),
-        
-        selectizeInput("NED_athletes", "Dutch Athletes (Choose 5):", choices=na.omit(get_names_for_IDs(means_df$ID[means_df$Country == "NED" & means_df$Gender == "m"], key)), multiple=TRUE, options = list(maxItems = 5)),
-        checkboxInput("NED_apps", "Custom assign apparatus"),
-        fluidRow(class = "bordered-row",
-                 conditionalPanel(condition="input.NED_apps == 1", style = "margin-left: 50px;",
-                                  
-                                  column(6, selectizeInput("NED_VT", "Vault (4)", choices=NULL, multiple=TRUE, options = list(maxItems = 4))),
-                                  column(6, selectizeInput("NED_FX", "Floor (4)", choices=NULL, multiple=TRUE, options = list(maxItems = 4))),
-                                  column(6, selectizeInput("NED_HB", "Horizontal Bar (4)", choices=NULL, multiple=TRUE, options = list(maxItems = 4))),
-                                  column(6, selectizeInput("NED_PB", "Parallel Bars (4)", choices=NULL, multiple=TRUE, options = list(maxItems = 4))),
-                                  column(6, selectizeInput("NED_PH", "Pommel Horse (4)", choices=NULL, multiple=TRUE, options = list(maxItems = 4))),
-                                  column(6, selectizeInput("NED_SR", "Rings (4)", choices=NULL, multiple=TRUE, options = list(maxItems = 4)))
-                 )
-        ),
-        
-        selectizeInput("UKR_athletes", "Ukrainian Athletes (Choose 5):", choices=na.omit(get_names_for_IDs(means_df$ID[means_df$Country == "UKR" & means_df$Gender == "m"], key)), multiple=TRUE, options = list(maxItems = 5)),
-        checkboxInput("UKR_apps", "Custom assign apparatus"),
-        fluidRow(class = "bordered-row",
-                 conditionalPanel(condition="input.UKR_apps == 1", style = "margin-left: 50px;",
-                                  
-                                  column(6, selectizeInput("UKR_VT", "Vault (4)", choices=NULL, multiple=TRUE, options = list(maxItems = 4))),
-                                  column(6, selectizeInput("UKR_FX", "Floor (4)", choices=NULL, multiple=TRUE, options = list(maxItems = 4))),
-                                  column(6, selectizeInput("UKR_HB", "Horizontal Bar (4)", choices=NULL, multiple=TRUE, options = list(maxItems = 4))),
-                                  column(6, selectizeInput("UKR_PB", "Parallel Bars (4)", choices=NULL, multiple=TRUE, options = list(maxItems = 4))),
-                                  column(6, selectizeInput("UKR_PH", "Pommel Horse (4)", choices=NULL, multiple=TRUE, options = list(maxItems = 4))),
-                                  column(6, selectizeInput("UKR_SR", "Rings (4)", choices=NULL, multiple=TRUE, options = list(maxItems = 4)))
-                 )
-        ),
-        
         )
-    ),
+
+    )
 )
+)
+
 
 server <- function(input, output, session) {
   observe({
@@ -302,118 +272,65 @@ server <- function(input, output, session) {
     })
   })
   
-  #Raymond Stuff
-  
-  observeEvent(input$JPN_athletes, {
-    selected_values <- input$JPN_athletes
-    updateSelectizeInput(session, "JPN_VT", choices=selected_values)
-    updateSelectizeInput(session, "JPN_FX", choices=selected_values)
-    updateSelectizeInput(session, "JPN_HB", choices=selected_values)
-    updateSelectizeInput(session, "JPN_PB", choices=selected_values)
-    updateSelectizeInput(session, "JPN_PH", choices=selected_values)
-    updateSelectizeInput(session, "JPN_SR", choices=selected_values)
+
+  # initialize all of the optional input boxes (for assigning to apps)
+  lapply(1:12, function(i){
+    
+    output[[glue("T{i}_appbox")]] <- renderUI({
+      apps <- get_app_gender(input$simgender)
+      selectize_inputs <- lapply(apps, function(app) {
+        column(4,
+               selectizeInput(glue("T{i}_{app}"),
+                              glue("{app_fullname[[app]]} (4)"),
+                              choices= input[[glue("T{i}_athletes")]],
+                              multiple=TRUE,
+                              options = list(maxItems = 4)))
+      })
+      do.call(tagList, selectize_inputs)
     })
-  observeEvent(input$USA_athletes, {
-    selected_values <- input$USA_athletes
-    updateSelectizeInput(session, "USA_VT", choices=selected_values)
-    updateSelectizeInput(session, "USA_FX", choices=selected_values)
-    updateSelectizeInput(session, "USA_HB", choices=selected_values)
-    updateSelectizeInput(session, "USA_PB", choices=selected_values)
-    updateSelectizeInput(session, "USA_PH", choices=selected_values)
-    updateSelectizeInput(session, "USA_SR", choices=selected_values)
+    
   })
-  observeEvent(input$GBR_athletes, {
-    selected_values <- input$GBR_athletes
-    updateSelectizeInput(session, "GBR_VT", choices=selected_values)
-    updateSelectizeInput(session, "GBR_FX", choices=selected_values)
-    updateSelectizeInput(session, "GBR_HB", choices=selected_values)
-    updateSelectizeInput(session, "GBR_PB", choices=selected_values)
-    updateSelectizeInput(session, "GBR_PH", choices=selected_values)
-    updateSelectizeInput(session, "GBR_SR", choices=selected_values)
+  
+  
+  # dynamically change top-12 countries when switching between men and women 
+  observeEvent(input$simgender, {
+    if(input$simgender == "Men"){
+      gender <- "m"
+      countries <- men_countries
+      apps <- men_apps
+    }
+    else{
+      gender <- "w"
+      countries <- women_countries
+      apps <- women_apps
+    }
+    
+    for(i in 1:length(countries)){
+      updateSelectizeInput(
+        session, glue("T{i}_athletes"), 
+        label=glue("{countries[i]} Athletes (5):"),
+        choices=na.omit(get_names_for_IDs(means_df$ID[means_df$Country == countries[i] & means_df$Gender == gender], key))
+      )
+    }
   })
-  observeEvent(input$CAN_athletes, {
-    selected_values <- input$CAN_athletes
-    updateSelectizeInput(session, "CAN_VT", choices=selected_values)
-    updateSelectizeInput(session, "CAN_FX", choices=selected_values)
-    updateSelectizeInput(session, "CAN_HB", choices=selected_values)
-    updateSelectizeInput(session, "CAN_PB", choices=selected_values)
-    updateSelectizeInput(session, "CAN_PH", choices=selected_values)
-    updateSelectizeInput(session, "CAN_SR", choices=selected_values)
-  })
-  observeEvent(input$GER_athletes, {
-    selected_values <- input$GER_athletes
-    updateSelectizeInput(session, "GER_VT", choices=selected_values)
-    updateSelectizeInput(session, "GER_FX", choices=selected_values)
-    updateSelectizeInput(session, "GER_HB", choices=selected_values)
-    updateSelectizeInput(session, "GER_PB", choices=selected_values)
-    updateSelectizeInput(session, "GER_PH", choices=selected_values)
-    updateSelectizeInput(session, "GER_SR", choices=selected_values)
-  })
-  observeEvent(input$ITA_athletes, {
-    selected_values <- input$ITA_athletes
-    updateSelectizeInput(session, "ITA_VT", choices=selected_values)
-    updateSelectizeInput(session, "ITA_FX", choices=selected_values)
-    updateSelectizeInput(session, "ITA_HB", choices=selected_values)
-    updateSelectizeInput(session, "ITA_PB", choices=selected_values)
-    updateSelectizeInput(session, "ITA_PH", choices=selected_values)
-    updateSelectizeInput(session, "ITA_SR", choices=selected_values)
-  })
-  observeEvent(input$SUI_athletes, {
-    selected_values <- input$SUI_athletes
-    updateSelectizeInput(session, "SUI_VT", choices=selected_values)
-    updateSelectizeInput(session, "SUI_FX", choices=selected_values)
-    updateSelectizeInput(session, "SUI_HB", choices=selected_values)
-    updateSelectizeInput(session, "SUI_PB", choices=selected_values)
-    updateSelectizeInput(session, "SUI_PH", choices=selected_values)
-    updateSelectizeInput(session, "SUI_SR", choices=selected_values)
-  })
-  observeEvent(input$CHN_athletes, {
-    selected_values <- input$CHN_athletes
-    updateSelectizeInput(session, "CHN_VT", choices=selected_values)
-    updateSelectizeInput(session, "CHN_FX", choices=selected_values)
-    updateSelectizeInput(session, "CHN_HB", choices=selected_values)
-    updateSelectizeInput(session, "CHN_PB", choices=selected_values)
-    updateSelectizeInput(session, "CHN_PH", choices=selected_values)
-    updateSelectizeInput(session, "CHN_SR", choices=selected_values)
-  })
-  observeEvent(input$ESP_athletes, {
-    selected_values <- input$ESP_athletes
-    updateSelectizeInput(session, "ESP_VT", choices=selected_values)
-    updateSelectizeInput(session, "ESP_FX", choices=selected_values)
-    updateSelectizeInput(session, "ESP_HB", choices=selected_values)
-    updateSelectizeInput(session, "ESP_PB", choices=selected_values)
-    updateSelectizeInput(session, "ESP_PH", choices=selected_values)
-    updateSelectizeInput(session, "ESP_SR", choices=selected_values)
-  })
-  observeEvent(input$TUR_athletes, {
-    selected_values <- input$TUR_athletes
-    updateSelectizeInput(session, "TUR_VT", choices=selected_values)
-    updateSelectizeInput(session, "TUR_FX", choices=selected_values)
-    updateSelectizeInput(session, "TUR_HB", choices=selected_values)
-    updateSelectizeInput(session, "TUR_PB", choices=selected_values)
-    updateSelectizeInput(session, "TUR_PH", choices=selected_values)
-    updateSelectizeInput(session, "TUR_SR", choices=selected_values)
-  })
-  observeEvent(input$NED_athletes, {
-    selected_values <- input$NED_athletes
-    updateSelectizeInput(session, "NED_VT", choices=selected_values)
-    updateSelectizeInput(session, "NED_FX", choices=selected_values)
-    updateSelectizeInput(session, "NED_HB", choices=selected_values)
-    updateSelectizeInput(session, "NED_PB", choices=selected_values)
-    updateSelectizeInput(session, "NED_PH", choices=selected_values)
-    updateSelectizeInput(session, "NED_SR", choices=selected_values)
-  })
-  observeEvent(input$UKR_athletes, {
-    selected_values <- input$UKR_athletes
-    updateSelectizeInput(session, "UKR_VT", choices=selected_values)
-    updateSelectizeInput(session, "UKR_FX", choices=selected_values)
-    updateSelectizeInput(session, "UKR_HB", choices=selected_values)
-    updateSelectizeInput(session, "UKR_PB", choices=selected_values)
-    updateSelectizeInput(session, "UKR_PH", choices=selected_values)
-    updateSelectizeInput(session, "UKR_SR", choices=selected_values)
-  })
+  
+  
+  # dynamically change options for app assignment to only allow selected athletes
+  for(i in 1:12){
+    
+    observeEvent(list(input$simgender, input[[glue("T{i}_athletes")]], input[[glue("T{i}_apps")]]), {
+      
+      apps <- get_app_gender(input$simgender) 
+      selected_values <- input[[glue("T{i}_athletes")]]
+      
+      for(app in apps){
+        updateSelectizeInput(session, glue("T{i}_{app}"), choices=selected_values)
+      }
+      
+    })
   
 }
+
 
 
 shinyApp(ui, server)

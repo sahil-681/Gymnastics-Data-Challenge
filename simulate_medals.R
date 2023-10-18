@@ -40,6 +40,7 @@ simulate_medals <- function(top12teams, qual36, means_df, stddevs_df, gender, pt
   competitors <- quals_means[, c("ID", "Country", "App")]
   
   # Run the simulation
+  print(competitors)
   sim_output <- run_sims(competitors, qual36, long_meanstds, gender, apps, do_sampling=F)
   
   

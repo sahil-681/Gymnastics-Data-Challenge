@@ -20,3 +20,44 @@ source("query.existing.database.R")
 means_df
 ```
 
+```{r}
+output <- list()
+for(i in 1:12){
+  for(app in apps){
+    list(i, j) <- input$T{i}_{event}
+  }
+}
+input$T{i}_{event}
+
+```
+
+
+```{r}
+source("simulate_medals.R")
+source("run_sims.R")
+
+top12teams <- read.csv("data/team_country_qualified_individuals.csv")
+qual36 <- read.csv("data/mens_36_athletes.csv")
+means_df <- read.csv("data/means_per_app.csv")
+stddevs_df <- read.csv("data/stddevs_per_app.csv")
+
+
+
+# output <- simulate_medals(top12teams, qual36, means_df, stddevs_df, "m")
+competitors <- get_default_assignments(top12teams)
+output <- run_sims(competitors, qual36, means_df, stddevs_df, "m")
+```
+
+```{r}
+top12teams
+```
+
+```{r}
+men_best <- (readRDS("data/best.teams.mens.rds")$optimizedteams)# only men are optimizd
+men_best <- men_best[men_best$Gender == "m", ]
+
+women_best <- readRDS("data/best.teams.womens.rds")$optimizedteams # only women are optimized
+women_best <- women_best[women_best$Gender == "w", ]
+```
+
+

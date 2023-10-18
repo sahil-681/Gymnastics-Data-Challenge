@@ -21,6 +21,8 @@ tally_medals <- function(long_medals, countries, places){
 
 run_sims <- function(competitors, qual36, long_meanstds, gender, apps, do_sampling=F){
   
+  #columns: ID, Gender, Country, App
+  
   teamed_quals <- merge(competitors, long_meanstds, all.x=T)
   
   alt_quals <- qual36[, c("ID", "Country")] # get list of alternates (competitors not part of a qualified country)
