@@ -4,6 +4,7 @@ library(glue)
 
 men_best <- readRDS("best.teams.mens.rds") # OPTIMIZED T
 women_best <- readRDS("best.teams.womens.rds")
+optimized_teams <- readRDS("optimized_teams.rds")
 means_df <- readRDS("means_df.rds")
 key <- readRDS("name_ID_key.rds")
 men_countries <- c("JPN", "USA", "GBR", "CAN", "GER", "ITA", "SUI", "CHN", "ESP", "BRA",  "KOR", "FRA")
@@ -309,7 +310,8 @@ server <- function(input, output, session) {
       updateSelectizeInput(
         session, glue("T{i}_athletes"), 
         label=glue("{countries[i]} Athletes (5):"),
-        choices=na.omit(get_names_for_IDs(means_df$ID[means_df$Country == countries[i] & means_df$Gender == gender], key))
+        choices=na.omit(get_names_for_IDs(means_df$ID[means_df$Country == countries[i] & means_df$Gender == gender], key)),
+        selected=na.omit(get_names_for_IDs(optimized_teams$ID[optimized_teams$Country == countries[i] & optimized_teams$Gender == gender], key))
       )
     }
   })
@@ -328,7 +330,7 @@ server <- function(input, output, session) {
       }
       
     })
-  
+  }
 }
 
 

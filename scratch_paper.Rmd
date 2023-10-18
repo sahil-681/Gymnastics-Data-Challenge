@@ -43,21 +43,28 @@ stddevs_df <- read.csv("data/stddevs_per_app.csv")
 
 
 
-# output <- simulate_medals(top12teams, qual36, means_df, stddevs_df, "m")
-competitors <- get_default_assignments(top12teams)
-output <- run_sims(competitors, qual36, means_df, stddevs_df, "m")
+output <- simulate_medals(top12teams, qual36, means_df, stddevs_df, "m")
 ```
 
 ```{r}
-top12teams
+output
 ```
+
+
 
 ```{r}
 men_best <- (readRDS("data/best.teams.mens.rds")$optimizedteams)# only men are optimizd
 men_best <- men_best[men_best$Gender == "m", ]
-
 women_best <- readRDS("data/best.teams.womens.rds")$optimizedteams # only women are optimized
 women_best <- women_best[women_best$Gender == "w", ]
+
+optimized_teams <- rbind(men_best, women_best)
+saveRDS(optimized_teams, "optimized_teams.rds")
 ```
 
+```{r}
+source("get_default_assignments.R")
+input <- top12teams[top12teams$Country == "USA" & top12teams$Gender == "w",]
+get_default_assignments(top12teams[top12teams$Gender == "w",], means_df)
+```
 

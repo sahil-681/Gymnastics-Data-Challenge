@@ -2,6 +2,7 @@
 library(tidyverse)
 library(data.table)
 source("run_sims.R")
+source("get_default_assignments.R")
 
 simulate_medals <- function(top12teams, qual36, means_df, stddevs_df, gender, ptime=F){
   start_t <- Sys.time()
@@ -21,31 +22,15 @@ simulate_medals <- function(top12teams, qual36, means_df, stddevs_df, gender, pt
   long_stddevs <- stddevs_df %>% pivot_longer(cols=apps, names_to="App", values_to="Stddev")
   long_meanstds <- merge(long_means, long_stddevs)
   
-  # get top-2 all-around for each qualified country (to become our list of AA-athletes)
-  means_df$aa_sums <- rowSums(means_df[, apps])
-  t2_AA <- means_df[
-    complete.cases(means_df) & means_df$Country %in% unique(top12teams$Country), ] %>% 
-    group_by(Country) %>% arrange(desc(aa_sums)) %>% slice_head(n=2) %>% 
-    pivot_longer(cols=apps, names_to="App", values_to="Mean") %>% select(-aa_sums)
-  means_df <- means_df %>% select(-aa_sums) 
-  
-  #get top 4 per app per country, excluding AA-athletes
-  t2_nAA <- means_df[
-    means_df$Country %in% unique(top12teams$Country) & !(means_df$ID %in% t2_AA$ID), ] %>% 
-    pivot_longer(cols=apps, names_to="App", values_to="Mean") %>% group_by(Country, App) %>%
-    slice_max(order_by=Mean, n=4)
-  
-  
-  quals_means <- rbind(t2_AA, t2_nAA) %>% group_by(Country, App) %>% slice_head(n = 4) # combine w/ AA-athletes first so that they are guaranteed, then also keep top non-AAs such that each app will have 4 total
-  competitors <- quals_means[, c("ID", "Country", "App")]
+  # get default assignments of athletes to apps
+  competitors <- get_default_assignments(top12teams, means_df)
   
   # Run the simulation
-  print(competitors)
   sim_output <- run_sims(competitors, qual36, long_meanstds, gender, apps, do_sampling=F)
   
   
   # get IDs competing per country per apparatus, sorted in order
-  team_app_athletes <- suppressMessages(quals_means %>% arrange(desc(Mean)) %>%
+  team_app_athletes <- suppressMessages(competitors %>% arrange(desc(Mean)) %>%
     group_by(Country, App) %>% summarise(Athletes = toString(unique(ID))))
   
   
