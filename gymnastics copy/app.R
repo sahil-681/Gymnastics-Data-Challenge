@@ -2,7 +2,7 @@ library(shiny)
 library(dplyr)
 library(glue)
 
-men_best <- readRDS("best.teams.mens.rds") # OPTIMIZED T
+men_best <- readRDS("best.teams.mens.rds")
 women_best <- readRDS("best.teams.womens.rds")
 optimized_teams <- readRDS("optimized_teams.rds")
 means_df <- readRDS("means_df.rds")
@@ -85,8 +85,14 @@ ui <- fluidPage(
         selectInput("simgender", "Gender: ", c("Men", "Women")),
         
         div(style = "height: 50px;"),
-        column(4, selectizeInput("T1_athletes", glue("{men_countries[1]} Athletes (5):"), choices=NULL, multiple=TRUE, options = list(maxItems = 5))),
-        column(4, checkboxInput("T1_apps", "Custom assign apparatus")),
+        fluidRow(
+          column(7, selectizeInput("T1_athletes",
+                                   glue("{men_countries[1]} Athletes (5):"),
+                                   choices=NULL, multiple=TRUE,
+                                   options = list(maxItems = 5),
+                                   width = "600px")),
+          column(4, checkboxInput("T1_apps", "Custom assign apparatus"))
+        ),
         fluidRow(class = "bordered-row",
           conditionalPanel(condition="input.T1_apps == 1", style = "margin-left: 50px;",
                            uiOutput("T1_appbox")
@@ -94,8 +100,14 @@ ui <- fluidPage(
         ),
         
         div(style = "height: 30px;"),
-        column(4, selectizeInput("T2_athletes", glue("{men_countries[2]} Athletes (5):"), choices=NULL, multiple=TRUE, options = list(maxItems = 5))),
-        column(4, checkboxInput("T2_apps", "Custom assign apparatus")),
+        fluidRow(
+          column(7, selectizeInput("T2_athletes",
+                                   glue("{men_countries[2]} Athletes (5):"),
+                                   choices=NULL, multiple=TRUE,
+                                   options = list(maxItems = 5),
+                                   width = "600px")),
+          column(4, checkboxInput("T2_apps", "Custom assign apparatus"))
+        ),
         fluidRow(class = "bordered-row",
           conditionalPanel(condition="input.T2_apps == 1", style = "margin-left: 50px;",
                           uiOutput("T2_appbox")
@@ -103,8 +115,14 @@ ui <- fluidPage(
         ),
         
         div(style = "height: 30px;"),
-        column(4, selectizeInput("T3_athletes", glue("{men_countries[3]} Athletes (5):"), choices=NULL, multiple=TRUE, options = list(maxItems = 5))),
-        column(4, checkboxInput("T3_apps", "Custom assign apparatus")),
+        fluidRow(
+          column(7, selectizeInput("T3_athletes",
+                                   glue("{men_countries[3]} Athletes (5):"),
+                                   choices=NULL, multiple=TRUE,
+                                   options = list(maxItems = 5),
+                                   width = "600px")),
+          column(4, checkboxInput("T3_apps", "Custom assign apparatus"))
+        ),
         fluidRow(class = "bordered-row",
           conditionalPanel(condition="input.T3_apps == 1", style = "margin-left: 50px;",
                           uiOutput("T3_appbox")
@@ -113,8 +131,14 @@ ui <- fluidPage(
         ),
         
         div(style = "height: 30px;"),
-        column(4, selectizeInput("T4_athletes", glue("{men_countries[4]} Athletes (5):"), choices=NULL, multiple=TRUE, options = list(maxItems = 5))),
-        column(4, checkboxInput("T4_apps", "Custom assign apparatus")),
+        fluidRow(
+          column(7, selectizeInput("T4_athletes",
+                                   glue("{men_countries[4]} Athletes (5):"),
+                                   choices=NULL, multiple=TRUE,
+                                   options = list(maxItems = 5),
+                                   width = "600px")),
+          column(4, checkboxInput("T4_apps", "Custom assign apparatus"))
+        ),
         fluidRow(class = "bordered-row",
                  conditionalPanel(condition="input.T4_apps == 1", style = "margin-left: 50px;",
                                   uiOutput("T4_appbox")
@@ -122,8 +146,14 @@ ui <- fluidPage(
         ),
         
         div(style = "height: 30px;"),
-        column(4, selectizeInput("T5_athletes", glue("{men_countries[5]} Athletes (5):"), choices=NULL, multiple=TRUE, options = list(maxItems = 5))),
-        column(4, checkboxInput("T5_apps", "Custom assign apparatus")),
+        fluidRow(
+          column(7, selectizeInput("T5_athletes",
+                                   glue("{men_countries[5]} Athletes (5):"),
+                                   choices=NULL, multiple=TRUE,
+                                   options = list(maxItems = 5),
+                                   width = "600px")),
+          column(4, checkboxInput("T5_apps", "Custom assign apparatus"))
+        ),
         fluidRow(class = "bordered-row",
                  conditionalPanel(condition="input.T5_apps == 1", style = "margin-left: 50px;",
                                   uiOutput("T5_appbox")
@@ -131,8 +161,14 @@ ui <- fluidPage(
         ),
         
         div(style = "height: 30px;"),
-        column(4, selectizeInput("T6_athletes", glue("{men_countries[6]} Athletes (5):"), choices=NULL, multiple=TRUE, options = list(maxItems = 5))),
-        column(4, checkboxInput("T6_apps", "Custom assign apparatus")),
+        fluidRow(
+          column(7, selectizeInput("T6_athletes",
+                                   glue("{men_countries[6]} Athletes (5):"),
+                                   choices=NULL, multiple=TRUE,
+                                   options = list(maxItems = 5),
+                                   width = "600px")),
+          column(4, checkboxInput("T6_apps", "Custom assign apparatus"))
+        ),
         fluidRow(class = "bordered-row",
                  conditionalPanel(condition="input.T6_apps == 1", style = "margin-left: 50px;",
                                   uiOutput("T6_appbox")
@@ -140,8 +176,14 @@ ui <- fluidPage(
         ),
         
         div(style = "height: 30px;"),
-        column(4, selectizeInput("T7_athletes", glue("{men_countries[7]} Athletes (5):"), choices=NULL, multiple=TRUE, options = list(maxItems = 5))),
-        column(4, checkboxInput("T7_apps", "Custom assign apparatus")),
+        fluidRow(
+          column(7, selectizeInput("T7_athletes",
+                                   glue("{men_countries[7]} Athletes (5):"),
+                                   choices=NULL, multiple=TRUE,
+                                   options = list(maxItems = 5),
+                                   width = "600px")),
+          column(4, checkboxInput("T7_apps", "Custom assign apparatus"))
+        ),
         fluidRow(class = "bordered-row",
                  conditionalPanel(condition="input.T7_apps == 1", style = "margin-left: 50px;",
                                   uiOutput("T7_appbox")
@@ -149,8 +191,14 @@ ui <- fluidPage(
         ),
         
         div(style = "height: 30px;"),
-        column(4, selectizeInput("T8_athletes", glue("{men_countries[8]} Athletes (5):"), choices=NULL, multiple=TRUE, options = list(maxItems = 5))),
-        column(4, checkboxInput("T8_apps", "Custom assign apparatus")),
+        fluidRow(
+          column(7, selectizeInput("T8_athletes",
+                                   glue("{men_countries[8]} Athletes (5):"),
+                                   choices=NULL, multiple=TRUE,
+                                   options = list(maxItems = 5),
+                                   width = "600px")),
+          column(4, checkboxInput("T8_apps", "Custom assign apparatus"))
+        ),
         fluidRow(class = "bordered-row",
                  conditionalPanel(condition="input.T8_apps == 1", style = "margin-left: 50px;",
                                   uiOutput("T8_appbox")
@@ -158,8 +206,13 @@ ui <- fluidPage(
         ),
         
         div(style = "height: 30px;"),
-        column(4, selectizeInput("T9_athletes", glue("{men_countries[9]} Athletes (5):"), choices=NULL, multiple=TRUE, options = list(maxItems = 5))),
-        column(4, checkboxInput("T9_apps", "Custom assign apparatus")),
+        fluidRow(
+          column(7, selectizeInput("T9_athletes", glue("{men_countries[9]} Athletes (5):"),
+                                   choices=NULL, multiple=TRUE,
+                                   options = list(maxItems = 5),
+                                   width = "600px")),
+          column(4, checkboxInput("T9_apps", "Custom assign apparatus"))
+        ),
         fluidRow(class = "bordered-row",
                  conditionalPanel(condition="input.T9_apps == 1", style = "margin-left: 50px;",
                                   uiOutput("T9_appbox")
@@ -167,8 +220,14 @@ ui <- fluidPage(
         ),
         
         div(style = "height: 30px;"),
-        column(4, selectizeInput("T10_athletes", glue("{men_countries[10]} Athletes (5):"), choices=NULL, multiple=TRUE, options = list(maxItems = 5))),
-        column(4, checkboxInput("T10_apps", "Custom assign apparatus")),
+        fluidRow(
+          column(7, selectizeInput("T10_athletes",
+                                   glue("{men_countries[10]} Athletes (5):"),
+                                   choices=NULL, multiple=TRUE,
+                                   options = list(maxItems = 5),
+                                   width = "600px")),
+          column(4, checkboxInput("T10_apps", "Custom assign apparatus"))
+        ),
         fluidRow(class = "bordered-row",
                  conditionalPanel(condition="input.T10_apps == 1", style = "margin-left: 50px;",
                                   uiOutput("T10_appbox")
@@ -176,8 +235,14 @@ ui <- fluidPage(
         ),
         
         div(style = "height: 30px;"),
-        column(4, selectizeInput("T11_athletes", glue("{men_countries[11]} Athletes (5):"), choices=NULL, multiple=TRUE, options = list(maxItems = 5))),
-        column(4, checkboxInput("T11_apps", "Custom assign apparatus")),
+        fluidRow(
+          column(7, selectizeInput("T11_athletes",
+                                   glue("{men_countries[11]} Athletes (5):"),
+                                   choices=NULL, multiple=TRUE,
+                                   options = list(maxItems = 5),
+                                   width = "600px")),
+          column(4, checkboxInput("T11_apps", "Custom assign apparatus"))
+        ),
         fluidRow(class = "bordered-row",
                  conditionalPanel(condition="input.T11_apps == 1", style = "margin-left: 50px;",
                                   uiOutput("T11_appbox")
@@ -185,8 +250,14 @@ ui <- fluidPage(
         ),
         
         div(style = "height: 30px;"),
-        column(4, selectizeInput("T12_athletes", glue("{men_countries[12]} Athletes (5):"), choices=NULL, multiple=TRUE, options = list(maxItems = 5))),
-        column(4, checkboxInput("T12_apps", "Custom assign apparatus")),
+        fluidRow(
+          column(7, selectizeInput("T12_athletes",
+                                   glue("{men_countries[12]} Athletes (5):"), 
+                                   choices=NULL, multiple=TRUE,
+                                   options = list(maxItems = 5),
+                                   width = "600px")),
+          column(4, checkboxInput("T12_apps", "Custom assign apparatus"))
+        ),
         fluidRow(class = "bordered-row",
                  conditionalPanel(condition="input.T12_apps == 1", style = "margin-left: 50px;",
                                   uiOutput("T12_appbox")
