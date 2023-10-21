@@ -54,6 +54,10 @@ run_sims(assigned_df, qual36, long_meanstds, "m", c("VT", "BB", "FX", "UB"))
 
 
 
+```{r}
+means_df <- read.csv("../data/means_per_app.csv")
+means_df[means_df$ID == "moldauer_yul",]
+```
 
 
 

@@ -60,6 +60,15 @@ get_gender_country <- function(input){
   }
 }
 
+get_qual36 <- function(g){
+  if(g=="Men"){
+    return(alt36m)
+  }else{
+    return(alt36w)
+  }
+}
+
+
 ui <- fluidPage(
   titlePanel("Olympic Gymnastics Analysis"),
   navbarPage("Navbar Title",
@@ -107,8 +116,10 @@ ui <- fluidPage(
     
     
     tabPanel("Run Custom Simulation",
-        
-        selectInput("simgender", "Gender: ", c("Men", "Women")),
+        fluidRow(
+          column(4, selectInput("simgender", "Gender: ", c("Men", "Women"))),
+          column(4, numericInput("n_sims", "Number of Simulations: ",  value = 10, min = 1, max=1000))
+        ),
         
         div(style = "height: 50px;"),
         fluidRow(
@@ -444,6 +455,9 @@ server <- function(input, output, session) {
     apps <- get_gender_app(input$simgender)
     gender <- translate_gender(input$simgender)
     countries <- get_gender_country(input$simgender)
+    qual36 <- get_qual36(input$simgender)
+    
+    long_meanstds <- read.csv("long_meanstds.csv")
     
     # Parse the selected Players into df
     assigned_list <- list()
@@ -457,6 +471,7 @@ server <- function(input, output, session) {
         )
         
         assigned_list[[i]] <- get_default_assignments(athletes_df, means_df)
+        assigned_list[[i]]$Gender <- gender
         
       }else{ # parse custom assignment input
 
@@ -477,8 +492,20 @@ server <- function(input, output, session) {
         
       }
     }
-    assigned_competitors <- bind_rows(assigned_list)
-    output$sim_results <- renderDataTable({assigned_competitors})
+    competitors <- bind_rows(assigned_list)
+    
+    n_sims <- 8
+    sim_results <- list()
+    for(i in 1:n_sims){
+      sim_results[[i]] <- run_sims(competitors, qual36, long_meanstds, gender, do_sampling=T)[[2]] %>% select(-Score)
+    }
+    sim_results <- bind_rows(sim_results)
+    sim_results <- sim_results %>% group_by(ID, Country, App, Place) %>% summarize(Count=round(n()/n_sims, 2)) %>% pivot_wider(names_from=Place, values_from=Count)
+    sim_results <- sim_results[, c("ID", "Country", "App",
+                                   "First", "Second", "Third", "Fourth", "Fifth", "Sixth", "Seventh", "Eighth")]
+    
+    output$sim_results <- renderDataTable({sim_results})
+    
     
     # Call Run Sims
     # sim_results <- 

@@ -99,7 +99,7 @@ run_sims <- function(competitors, qual36, long_meanstds, gender, do_sampling=F){
     Place = places,
     Score = country_scores$Total_Score,
     Country = country_scores$Country,
-    ID = NA
+    ID = country_scores$Country
   )
   
   
