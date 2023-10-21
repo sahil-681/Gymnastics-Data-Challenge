@@ -47,8 +47,16 @@ for (i in 1:nrow(means_df)) {
   }
 }
 
+#generate long_meanstds
+  
+long_means <- means_df %>% pivot_longer(cols=events, names_to="App", values_to="Mean")
+long_stddevs <- stddevs_df %>% pivot_longer(cols=events, names_to="App", values_to="Stddev")
+
+long_meanstds <- merge(long_means, long_stddevs)
+
 # write the means and stddevs output files
 write.csv(means_df, "data/means_per_app.csv", row.names = F)
 write.csv(stddevs_df, "data/stddevs_per_app.csv", row.names = F)
+write.csv(long_meanstds, "data/long_meanstds.csv", row.names = F)
 write.csv(samples_df, "data/score_predictions.csv", row.names = F)
-print(colnames(samples_df))
+print("Finished fitting model")

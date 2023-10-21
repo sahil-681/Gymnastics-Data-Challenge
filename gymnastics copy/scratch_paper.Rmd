@@ -1,0 +1,96 @@
+---
+title: "scratch_paper"
+output: html_document
+date: "2023-10-17"
+---
+
+```{r}
+library(dplyr)
+
+
+setwd("C:/Users/Raymond/Documents/Classes/SDS625/Gymnastics-Data-Challenge/gymnastics copy")
+men_best <- readRDS("best.teams.mens.rds")
+women_best <- readRDS("best.teams.womens.rds")
+means_df <- readRDS("means_df.rds")
+key <- readRDS("name_ID_key.rds")
+source("query.existing.database.R")
+```
+
+```{r}
+getwd()
+```
+
+
+```{r}
+source("simulate_medals.R")
+
+top12teams <- read.csv("../data/team_country_qualified_individuals.csv")
+qual36 <- read.csv("../data/womens_36_athletes.csv")
+means_df <- read.csv("../data/means_per_app.csv")
+stddevs_df <- read.csv("../data/stddevs_per_app.csv")
+# 
+simulate_medals(top12teams, qual36, means_df, stddevs_df, "w")
+```
+
+```{r}
+simulate_medals(top12teams, qual36, means_df, stddevs_df, "m")
+```
+
+
+
+
+
+```{r}
+source("get_default_assignments.R")
+(assigned_df <- get_default_assignments(top12teams[top12teams$Gender == "m",], means_df))
+```
+
+```{r}
+long_meanstds <- read.csv("../data/long_meanstds.csv")
+qual36 <- read.csv("../data/mens_36_athletes.csv")
+source("run_sims.R")
+run_sims(assigned_df, qual36, long_meanstds, "m", c("VT", "BB", "FX", "UB"))
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+```{r}
+# Used to create Optimized_teams, no need to run often
+# men_best <- (readRDS("../data/best.teams.mens.rds")$optimizedteams)# only men are optimizd
+# men_best <- men_best[men_best$Gender == "m", ]
+# women_best <- readRDS("../data/best.teams.womens.rds")$optimizedteams # only women are optimized
+# women_best <- women_best[women_best$Gender == "w", ]
+# 
+# optimized_teams <- rbind(men_best, women_best)
+# saveRDS(optimized_teams, "optimized_teams.rds")
+```
+

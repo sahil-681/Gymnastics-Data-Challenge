@@ -34,7 +34,6 @@ input$T{i}_{event}
 
 ```{r}
 source("simulate_medals.R")
-source("run_sims.R")
 
 top12teams <- read.csv("data/team_country_qualified_individuals.csv")
 qual36 <- read.csv("data/mens_36_athletes.csv")
@@ -65,6 +64,18 @@ saveRDS(optimized_teams, "optimized_teams.rds")
 ```{r}
 source("get_default_assignments.R")
 input <- top12teams[top12teams$Country == "USA" & top12teams$Gender == "w",]
-get_default_assignments(top12teams[top12teams$Gender == "w",], means_df)
+(assigned_df <- get_default_assignments(top12teams[top12teams$Gender == "w",], means_df))
 ```
+
+```{r}
+long_meanstds <- read.csv("data/long_meanstds.csv")
+qual36 <- read.csv("data/mens_36_athletes.csv")
+source("run_sims.R")
+run_sims(assigned_df, qual36, long_meanstds, "w", c("VT", "BB", "FX", "UB"))
+```
+
+```{r}
+getwd()
+```
+
 

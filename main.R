@@ -14,10 +14,11 @@ source('prep.data.R')
 source('fit.model.R')
 
 ## final script to get best teams and the US team simulations for all reasonable combinations 
-source('get.best.teams.R')# outputs 2 lists (men & women) of 2 data frames each, 
-                          # one is optimized top 12 teams, other is all 
+source('get.best.teams.R')# outputs 2 lists (men & women) of 2 data frames each,
+                          # one is optimized top 12 teams, other is all
                           # simulation results of country of interest (default: USA)
                           # with apparatus-athlete pairs and descending order of preference
                           # i.e. team on top is best
 
 print("finished")
+
