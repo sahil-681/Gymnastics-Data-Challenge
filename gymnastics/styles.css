@@ -1,0 +1,18 @@
+/* Default font size */
+.description {
+  font-size: 16px;
+}
+
+/* Adjust font size for screens up to 768px wide */
+@media screen and (max-width: 768px) {
+  .description {
+    font-size: 14px;
+  }
+}
+
+/* Adjust font size for screens up to 576px wide */
+@media screen and (max-width: 576px) {
+  .description {
+    font-size: 12px;
+  }
+}
