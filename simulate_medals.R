@@ -1,5 +1,3 @@
-# this function needs tidyr
-print("poop")
 library(tidyverse)
 library(data.table)
 source("run_sims.R")

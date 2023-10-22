@@ -205,7 +205,6 @@ get.best.teams <- function(start_teams, countries, gender, means_df,
   return(list(optimizedteams = start_teams, simresults = all_sims))
 }
 
-
 # start.time <- Sys.time()
 # # mens (takes close to 2 hours to run)
 # men_best <- get.best.teams(start_teams = startteams,
@@ -217,11 +216,7 @@ get.best.teams <- function(start_teams, countries, gender, means_df,
 # time.taken.mens <- round(end.time - start.time,2)
 # time.taken.mens
 
-
-# saveRDS("best.teams.mens.rds")
-#### men_best <- readRDS("data/best.teams.mens.rds")
-
-# men_best$simresults <- men_best$simresults[order(-men_best$interestedteam$TotalScore), ]
+men_best <- readRDS("data/best.teams.mens.rds")
 
 # start.time <- Sys.time()
 # # womens (takes close to 1 hours to run)
@@ -234,17 +229,9 @@ get.best.teams <- function(start_teams, countries, gender, means_df,
 # time.taken.mens <- round(end.time - start.time,2)
 # time.taken.mens
 
-#### women_best <- readRDS("data/best.teams.womens.rds")
-
-# women_best$simresults <- women_best$simresults[order(-women_best$interestedteam$TotalScore), ]
+women_best <- readRDS("data/best.teams.womens.rds")
 
 # saved
-saveRDS(men_best, file = "data/best.teams.mens.rds")
-saveRDS(women_best, file = "data/best.teams.womens.rds")
-
-# saving data as csv
-# write.csv(women_best$finalteams, "data/optimized.womens.teams.csv", row.names = FALSE)
-# write.csv(men_best$finalteams, "data/optimized.mens.teams.csv", row.names = FALSE)
-# write.csv(women_best$interestedteam, "data/best.womens.teams.country.of.interest.csv", row.names = FALSE)
-# write.csv(men_best$interestedteam, "data/best.mens.teams.country.of.interest.csv", row.names = FALSE)
+# saveRDS(men_best, file = "data/best.teams.mens.rds")
+# saveRDS(women_best, file = "data/best.teams.womens.rds")
 
