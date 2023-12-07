@@ -1,0 +1,21 @@
+---
+title: "scratch_paper_for_updating_team_quals_initials"
+author: "Raymond Lee"
+date: "2023-12-07"
+output: html_document
+---
+
+```{r}
+means_df <- read.csv("data/means_per_app.csv")
+```
+
+```{r}
+cols <- c("ID", "Gender", "Country", "VT", "FX", "BB", "UB")
+means_df[means_df$Country == "ROU" & means_df$Gender=="w", cols]
+```
+
+```{r}
+sort(unique(means_df$Country))
+```
+
+

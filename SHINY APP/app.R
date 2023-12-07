@@ -19,8 +19,8 @@ key <- readRDS("name_ID_key.rds")
 alt36m <- readRDS("alt36m.rds")
 alt36w <- readRDS("alt36w.rds")
 
-men_countries <- c("JPN", "USA", "GBR", "CAN", "GER", "ITA", "SUI", "CHN", "ESP", "BRA",  "KOR", "FRA")
-women_countries <- c("USA", "GBR", "CAN", "BRA", "ITA", "CHN", "JPN", "FRA", "ROC", "AUS", "GER", "BEL")
+men_countries <- c("JPN", "USA", "GBR", "CAN", "GER", "ITA", "SUI", "CHN", "ESP", "UKR",  "TUR", "NED")
+women_countries <- c("USA", "GBR", "CAN", "BRA", "ITA", "CHN", "JPN", "FRA", "KOR", "AUS", "NED", "ROU")
 
 men_apps <- c("VT", "FX", "HB", "PB", "PH", "SR")
 women_apps <- c("VT", "BB", "UB", "FX")
@@ -89,7 +89,7 @@ ui <- fluidPage(
               <p>Simply adjust the settings, and the app will calculate the optimal team for you. The teams displayed on top will be the best combinations, with decreasing performance as you move down the list.</p>
             </div>"),
          sidebarLayout(
-           sidebarPanel(
+           sidebarPanel(width=2,
              # gender 
              selectInput("gender", "Gender: ", c("Men", "Women")),
              
