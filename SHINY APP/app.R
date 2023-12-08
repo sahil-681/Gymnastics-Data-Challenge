@@ -530,26 +530,26 @@ server <- function(input, output, session) {
     qual36 <- get_qual36(input$simgender)
     
     long_meanstds <- read.csv("long_meanstds.csv")
+
     
     # Parse the selected Players into df
     assigned_list <- list()
     for(i in 1:12){
-      if(!input[[glue("T{i}_apps")]]){ # use get_default_assignment when no custom app assignments
-        
+      if(!input[[glue("T{i}_apps")]]){ # when no custom app assigns, use get_default_assignment
+
         athletes_df <- data.frame(
           "ID" = get_IDs_for_names(input[[glue("T{i}_athletes")]], key),
           "Country" = rep(countries[i], 5),
           "Gender" = rep(gender, 5)
         )
-        
         assigned_list[[i]] <- get_default_assignments(athletes_df, means_df)
         assigned_list[[i]]$Gender <- gender
+
         
       }else{ # parse custom assignment input
 
-        assigned_list[[i]] <- rbind()
-
         temp_list <- list()
+
         for(j in 1:length(apps)){
           temp_list[[j]] <- data.frame(
             "ID" = get_IDs_for_names(input[[glue("T{i}_{apps[j]}")]], key),
@@ -561,16 +561,18 @@ server <- function(input, output, session) {
         
         temp_df <- bind_rows(temp_list)
         assigned_list[[i]] <- merge(temp_df, long_means, all.x = T)
-        
       }
+
     }
     competitors <- bind_rows(assigned_list)
     
     n_sims <- input$n_sims
     sim_results <- list()
+
     for(i in 1:n_sims){
       sim_results[[i]] <- run_sims(competitors, qual36, long_meanstds, gender, do_sampling=T)[[2]] %>% select(-Score)
     }
+
     sim_results <- bind_rows(sim_results)
     sim_results <- sim_results %>% group_by(ID, Country, App, Place) %>% summarize(Count=round(n()/n_sims, 2)) %>% pivot_wider(names_from=Place, values_from=Count)
     sim_results <- sim_results[, c("ID", "Country", "App",

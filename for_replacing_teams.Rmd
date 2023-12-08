@@ -6,16 +6,72 @@ output: html_document
 ---
 
 ```{r}
-means_df <- read.csv("data/means_per_app.csv")
+(top12s <- read.csv("data/team_country_qualified_individuals.csv"))
 ```
 
 ```{r}
-cols <- c("ID", "Gender", "Country", "VT", "FX", "BB", "UB")
-means_df[means_df$Country == "ROU" & means_df$Gender=="w", cols]
+(alts <- read.csv("SHINY APP/alt36m.rds"))
+intersect(alts$X, top12s$ID)
+```
+
+
+```{r}
+(alts <- readRDS("SHINY APP/alt36w.rds") %>% arrange(Country))
+# alts[alts$Country %in% c("USA", "GBR", "CAN", "BRA", "ITA", "CHN", "JPN", "FRA", "KOR", "AUS", "NED", "ROU"), ]
+```
+
+
+```{r}
+m36csv <- read.csv("data/mens_36_athletes.csv")
+saveRDS(m36csv, "SHINY APP/alt36m.rds")
+```
+
+
+
+
+
+```{r}
+long_meanstds <- read.csv("data/long_meanstds.csv")
+
+men_countries <- c("JPN", "USA", "GBR", "CAN", "GER", "ITA", "SUI", "CHN", "ESP", "UKR",  "TUR", "NED")
+women_countries <- c("USA", "GBR", "CAN", "BRA", "ITA", "CHN", "JPN", "FRA", "KOR", "AUS", "NED", "ROU")
+
+men_apps <- c("VT", "FX", "HB", "PB", "PH", "SR")
+women_apps <- c("VT", "BB", "UB", "FX")
+
+long_meanstds[long_meanstds$Gender == "w" &
+                !(long_meanstds$Country %in% women_countries) &
+                long_meanstds$App == "BB", ] %>% arrange(-Mean)
 ```
 
 ```{r}
-sort(unique(means_df$Country))
+means_wide <- read.csv("data/means_per_app.csv")
+means_wide[means_wide$Gender == "m", c("ID", "Gender", "Country", "VT", "FX", "SR", "PB", "HB", "PH")]
 ```
+
+
+
+```{r}
+source("get_default_assignments.R")
+
+
+
+```
+
+
+```{r}
+source("run_sims.R")
+
+competitors <- 
+qual36 <- 
+long_meanstds <-
+gender<-
+apps <- 
+
+
+```
+
+
+
 
 
