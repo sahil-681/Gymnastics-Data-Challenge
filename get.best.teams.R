@@ -218,20 +218,20 @@ get.best.teams <- function(start_teams, countries, gender, means_df,
 
 men_best <- readRDS("data/best.teams.mens.rds")
 
-# start.time <- Sys.time()
-# # womens (takes close to 1 hours to run)
-# women_best <- get.best.teams(start_teams = startteams,
-#                     countries = unique(startteams$Country[startteams$Gender == "w"]),
-#                     gender = "w",
-#                     means,
-#                     stddevs, alt36w)
-# end.time <- Sys.time()
-# time.taken.mens <- round(end.time - start.time,2)
-# time.taken.mens
+start.time <- Sys.time()
+# womens (takes close to 1 hours to run)
+women_best <- get.best.teams(start_teams = startteams,
+                    countries = unique(startteams$Country[startteams$Gender == "w"]),
+                    gender = "w",
+                    means,
+                    stddevs, alt36w)
+end.time <- Sys.time()
+time.taken.mens <- round(end.time - start.time,2)
+time.taken.mens
 
 women_best <- readRDS("data/best.teams.womens.rds")
 
 # saved
 # saveRDS(men_best, file = "data/best.teams.mens.rds")
-# saveRDS(women_best, file = "data/best.teams.womens.rds")
+saveRDS(women_best, file = "data/best.teams.womens.rds")
 
