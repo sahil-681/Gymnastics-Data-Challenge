@@ -564,6 +564,8 @@ server <- function(input, output, session) {
       }
 
     }
+    print("finished assignments")
+    
     competitors <- bind_rows(assigned_list)
     
     n_sims <- input$n_sims

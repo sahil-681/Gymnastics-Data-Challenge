@@ -7,17 +7,18 @@ output: html_document
 
 ```{r}
 (top12s <- read.csv("data/team_country_qualified_individuals.csv"))
+unique(top12s$Country[top12s$Gender == "m"])
 ```
 
 ```{r}
-(alts <- read.csv("SHINY APP/alt36m.rds"))
+alts <- readRDS("SHINY APP/alt36m.rds")
 intersect(alts$X, top12s$ID)
 ```
 
 
 ```{r}
-(alts <- readRDS("SHINY APP/alt36w.rds") %>% arrange(Country))
-# alts[alts$Country %in% c("USA", "GBR", "CAN", "BRA", "ITA", "CHN", "JPN", "FRA", "KOR", "AUS", "NED", "ROU"), ]
+alts <- readRDS("SHINY APP/alt36w.rds") %>% arrange(Country)
+intersect(alts$X, top12s$ID)
 ```
 
 
@@ -52,26 +53,32 @@ means_wide[means_wide$Gender == "m", c("ID", "Gender", "Country", "VT", "FX", "S
 
 
 ```{r}
-source("get_default_assignments.R")
-
-
-
+(optimized_teams <- readRDS("SHINY APP/optimized_teams.rds"))
 ```
-
 
 ```{r}
-source("run_sims.R")
-
-competitors <- 
-qual36 <- 
-long_meanstds <-
-gender<-
-apps <- 
-
-
+(opt_mens <- readRDS("data/best.teams.mens.rds")[[1]])
 ```
 
+```{r}
+(opt_womens <- readRDS("data/best.teams.womens.rds")[[1]] )
+```
 
+```{r}
+library(tidyverse)
+library(dplyr)
+opt_womens[opt_womens$Gender == "m", ]
+```
 
+```{r}
+men_best[[1]]
+```
 
+```{r}
+new_optimized <- rbind(opt_mens, opt_womens)
+```
+
+```{r}
+saveRDS(new_optimized, "SHINY APP/optimized_teams.rds")
+```
 
