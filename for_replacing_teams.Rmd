@@ -11,20 +11,20 @@ unique(top12s$Country[top12s$Gender == "m"])
 ```
 
 ```{r}
-alts <- readRDS("SHINY APP/alt36m.rds")
+alts <- readRDS("data/alt36m.rds")
 intersect(alts$X, top12s$ID)
 ```
 
 
 ```{r}
-alts <- readRDS("SHINY APP/alt36w.rds") %>% arrange(Country)
+alts <- readRDS("data/alt36w.rds") %>% arrange(Country)
 intersect(alts$X, top12s$ID)
 ```
 
 
 ```{r}
 m36csv <- read.csv("data/mens_36_athletes.csv")
-saveRDS(m36csv, "SHINY APP/alt36m.rds")
+saveRDS(m36csv, "data/alt36m.rds")
 ```
 
 
@@ -53,7 +53,7 @@ means_wide[means_wide$Gender == "m", c("ID", "Gender", "Country", "VT", "FX", "S
 
 
 ```{r}
-(optimized_teams <- readRDS("SHINY APP/optimized_teams.rds"))
+(optimized_teams <- readRDS("data/optimized_teams.rds"))
 ```
 
 ```{r}
@@ -79,6 +79,6 @@ new_optimized <- rbind(opt_mens, opt_womens)
 ```
 
 ```{r}
-saveRDS(new_optimized, "SHINY APP/optimized_teams.rds")
+saveRDS(new_optimized, "data/optimized_teams.rds")
 ```
 

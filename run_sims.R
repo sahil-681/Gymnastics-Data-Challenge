@@ -19,17 +19,27 @@ tally_medals <- function(long_medals, countries, places){
   return(long_medals)
 }
 
-run_sims <- function(competitors, qual36, long_meanstds, gender, apps, do_sampling=F){
+run_sims <- function(competitors, qual36, long_meanstds, gender, do_sampling=F){
+  if(gender=="m"){
+    my_app <- c("VT", "FX", "HB", "PB", "PH", "SR")
+  }else{
+    my_app <- c("VT", "BB", "UB", "FX")
+  }
   
-  #columns: ID, Gender, Country, App
   
+  valid_ids <- c(qual36$ID, competitors$ID)
+  long_meanstds <- long_meanstds[long_meanstds$ID %in% valid_ids &
+                                   long_meanstds$Gender == gender &
+                                   long_meanstds$App %in% my_app, ]
+
   teamed_quals <- merge(competitors, long_meanstds, all.x=T)
+
   
   alt_quals <- qual36[, c("ID", "Country")] # get list of alternates (competitors not part of a qualified country)
-  alt_quals <- merge(alt_quals, data.frame(App = apps), by=NULL)
+  alt_quals <- merge(alt_quals, data.frame(App = my_app), by=NULL)
   alt_quals <- merge(alt_quals, long_meanstds, all.x=T)
   
-  # 0. Generating qual scores 
+  # 0. Generating qual scores
   quals <- rbind(teamed_quals, alt_quals)
   samples_df <- quals %>% select(-c(Mean, Stddev))
   if(do_sampling){
@@ -39,17 +49,16 @@ run_sims <- function(competitors, qual36, long_meanstds, gender, apps, do_sampli
   }
   
   
-  # 1. Team Qualifications 
+  # 1. Team Qualifications
   country_scores <- samples_df[samples_df$Country %in% teamed_quals$Country,] %>%
     group_by(Country, App) %>% slice_max(order_by=Score, n = 3) %>% ungroup %>%
     group_by(Country) %>% summarise(Total_Score = sum(Score)) %>% arrange(desc(Total_Score))
   qual_teams <- country_scores$Country[1:8]
   
-  
   aa_df <- samples_df %>% pivot_wider(id_cols = c("ID", "Country"), names_from="App", values_from="Score")
   aa_df <- aa_df[complete.cases(aa_df),]  # 2. AA Qualifications
   
-  aa_df$Total_Score <- rowSums(aa_df[, apps])
+  aa_df$Total_Score <- rowSums(aa_df[, my_app])
   aa_scores <- aa_df[, c("ID", "Country", "Total_Score")] %>% group_by(Country) %>%
     arrange(desc(Total_Score)) %>% slice_head(n=2)
   aa_scores <- aa_scores %>% arrange(desc(Total_Score))
@@ -79,7 +88,7 @@ run_sims <- function(competitors, qual36, long_meanstds, gender, apps, do_sampli
   if(do_sampling){
     teamed_finals$Score <- rnorm(length(teamed_finals$Mean), mean=teamed_finals$Mean, sd=teamed_finals$Stddev)
   }else{
-    teamed_finals$Score <- teamed_finals$Mean # use mean if only one sample 
+    teamed_finals$Score <- teamed_finals$Mean # use mean if only one sample
   }
   country_scores <- teamed_finals %>% group_by(Country) %>%
     summarise(Total_Score = sum(Score), NAs = sum(is.na(Score))) %>% arrange(desc(Total_Score))
@@ -90,17 +99,17 @@ run_sims <- function(competitors, qual36, long_meanstds, gender, apps, do_sampli
     Place = places,
     Score = country_scores$Total_Score,
     Country = country_scores$Country,
-    ID = NA
+    ID = country_scores$Country
   )
   
   
   # Simulate AA Finals(M)
-  qual_aa <- merge(qual_aa, data.frame(App=apps), by=NULL)
+  qual_aa <- merge(qual_aa, data.frame(App=my_app), by=NULL)
   qual_aa <- merge(qual_aa, long_meanstds, all.x=T)
   if(do_sampling){
     qual_aa$Score <- rnorm(length(qual_aa$Mean), mean=qual_aa$Mean, sd=qual_aa$Stddev)
   }else{
-    qual_aa$Score <- qual_aa$Mean # use mean if only trying one sample 
+    qual_aa$Score <- qual_aa$Mean # use mean if only trying one sample
   }
   aa_scores <- qual_aa %>% group_by(ID, Country) %>%
     summarise(Total_Score = sum(Score), NAs = sum(is.na(Score))) %>%
