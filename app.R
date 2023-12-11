@@ -14,6 +14,7 @@ women_best <- readRDS("data/best.teams.womens.rds")
 optimized_teams <- readRDS("data/optimized_teams.rds")
 means_df <- readRDS("data/means_df.rds")
 stddevs_df <- readRDS("data/stddevs.rds")
+meanstds_long <- read.csv("data/long_meanstds.csv")
 
 key <- readRDS("data/name_ID_key.rds")
 alt36m <- readRDS("data/alt36m.rds")
@@ -529,8 +530,7 @@ server <- function(input, output, session) {
     countries <- get_gender_country(input$simgender)
     qual36 <- get_qual36(input$simgender)
     
-    long_meanstds <- read.csv("long_meanstds.csv")
-
+    long_meanstds <- meanstds_long
     
     # Parse the selected Players into df
     assigned_list <- list()
