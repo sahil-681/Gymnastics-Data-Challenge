@@ -3,6 +3,14 @@
 
 # README
 
+## Important Links:
+
+- Github Repo: <https://github.com/sahil-681/Gymnastics-Data-Challenge>
+
+- R Shiny App: <https://sahil-singh-6.shinyapps.io/gymnastics>
+
+## Introduction:
+
 The goal of this analysis and Shiny pap is to navigate the multifaceted
 challenges of selecting the most optimum team to pick for the 2024 Paris
 Olympics Gymnastics Event. Our tool is built on the comprehensive

@@ -15,6 +15,14 @@ knitr::opts_chunk$set(
 
 # README
 
+## Important Links:
+
+- Github Repo: https://github.com/sahil-681/Gymnastics-Data-Challenge
+
+- R Shiny App: https://sahil-singh-6.shinyapps.io/gymnastics
+
+## Introduction:
+
 The goal of this analysis and Shiny pap is to navigate the multifaceted challenges of selecting the most optimum team to pick for the 2024 Paris Olympics Gymnastics Event. Our tool is built on the comprehensive dataset provided, and takes the help of a plethora of R scripts written by us to analyze and utilize past competition statistics and current performance trends in the end goal of building the interactive application which can be used by the end user easily.
 
 This file outlines the purpose of each script present in our submission. 
