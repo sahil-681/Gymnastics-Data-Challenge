@@ -28,7 +28,7 @@ This file outlines the purpose of each script present in our submission.
   application for gymnastics team selection.
 
 - fit.model.R: Computes mean scores and standard deviations for athletes
-  across different apparatuses, likely as a preliminary step for model
+  across different apparatuses, as a preliminary step for model
   fitting or data analysis.
 
 - get_default_assignments.R: Defines a function to assign default
