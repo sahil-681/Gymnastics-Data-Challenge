@@ -9,16 +9,15 @@ source("simulate_medals.R")
 source("get_default_assignments.R")
 source("run_sims.R")
 
-men_best <- readRDS("data/best.teams.mens.rds")
-women_best <- readRDS("data/best.teams.womens.rds")
-optimized_teams <- readRDS("data/optimized_teams.rds")
-means_df <- readRDS("data/means_df.rds")
-stddevs_df <- readRDS("data/stddevs.rds")
-meanstds_long <- read.csv("data/long_meanstds.csv")
+men_best <- readRDS("best.teams.mens.rds")
+women_best <- readRDS("best.teams.womens.rds")
+optimized_teams <- readRDS("optimized_teams.rds")
+means_df <- readRDS("means_df.rds")
+stddevs_df <- readRDS("stddevs.rds")
 
-key <- readRDS("data/name_ID_key.rds")
-alt36m <- readRDS("data/alt36m.rds")
-alt36w <- readRDS("data/alt36w.rds")
+key <- readRDS("name_ID_key.rds")
+alt36m <- readRDS("alt36m.rds")
+alt36w <- readRDS("alt36w.rds")
 
 men_countries <- c("JPN", "USA", "GBR", "CAN", "GER", "ITA", "SUI", "CHN", "ESP", "UKR",  "TUR", "NED")
 women_countries <- c("USA", "GBR", "CAN", "BRA", "ITA", "CHN", "JPN", "FRA", "KOR", "AUS", "NED", "ROU")
@@ -530,7 +529,8 @@ server <- function(input, output, session) {
     countries <- get_gender_country(input$simgender)
     qual36 <- get_qual36(input$simgender)
     
-    long_meanstds <- meanstds_long
+    long_meanstds <- read.csv("long_meanstds.csv")
+
     
     # Parse the selected Players into df
     assigned_list <- list()
