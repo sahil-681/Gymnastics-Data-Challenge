@@ -78,8 +78,8 @@ ui <- fluidPage(
   ),
   titlePanel("Paris 2024 Olympics: Gymnastics Team Optimization"),
   navbarPage("Options:",
-    tabPanel("Best Team Combinations",
-        HTML("<div class='description'>
+             tabPanel("Best Team Combinations",
+                      HTML("<div class='description'>
               <p><strong>Welcome to the Team Combinations Tab!</strong></p>
               <p>This tab provides the best team combinations based on your selection criteria:</p>
               <ul>
@@ -88,256 +88,271 @@ ui <- fluidPage(
               </ul>
               <p>Simply adjust the settings, and the app will calculate the optimal team for you. The teams displayed on top will be the best combinations, with decreasing performance as you move down the list.</p>
             </div>"),
-         sidebarLayout(
-           sidebarPanel(width=2,
-             # gender 
-             selectInput("gender", "Gender: ", c("Men", "Women")),
+                      sidebarLayout(
+                        sidebarPanel(width=2,
+                                     # gender 
+                                     selectInput("gender", "Gender: ", c("Men", "Women")),
+                                     
+                                     # country of interest 
+                                     selectInput("country", "Country: ", choices = NULL, selected = "USA"),
+                                     
+                                     # weight for gold medal
+                                     numericInput("gold", "Gold weight: ", value = 0.6, min = 0),
+                                     
+                                     # weight for silver medal
+                                     numericInput("silver", "Silver weight: ", value = 0.3, min = 0),
+                                     
+                                     # weight for bronze medal
+                                     numericInput("bronze", "Bronze weight: ", value = 0.1, min = 0),
+                                     
+                                     # included players
+                                     selectInput("include_players", "Include Players (up to 5): ", 
+                                                 choices = NULL, multiple = TRUE),
+                                     
+                                     # excluded players
+                                     selectInput("exclude_players", "Exclude Players (up to 5): ", 
+                                                 choices = NULL, multiple = TRUE),
+                                     
+                                     # Submit button
+                                     actionButton("submit_btn", "Submit")
+                        ),
+                        
+                        mainPanel(
+                          tabsetPanel(
+                            tabPanel("Top Performing Combinations", DTOutput("top_results"))
+                          )
+                        )
+                      )
+             ),
              
-             # country of interest 
-             selectInput("country", "Country: ", choices = NULL, selected = "USA"),
              
-             # weight for gold medal
-             numericInput("gold", "Gold weight: ", value = 0.6, min = 0),
-             
-             # weight for silver medal
-             numericInput("silver", "Silver weight: ", value = 0.3, min = 0),
-             
-             # weight for bronze medal
-             numericInput("bronze", "Bronze weight: ", value = 0.1, min = 0),
-             
-             # included players
-             selectInput("include_players", "Include Players (up to 5): ", 
-                         choices = NULL, multiple = TRUE),
-             
-             # excluded players
-             selectInput("exclude_players", "Exclude Players (up to 5): ", 
-                         choices = NULL, multiple = TRUE),
-             
-             # Submit button
-             actionButton("submit_btn", "Submit")
-           ),
-               
-           mainPanel(
-             tabsetPanel(
-               tabPanel("Top Performing Combinations", DTOutput("top_results"))
-          )
-        )
-      )
-    ),
-    
-    
-    tabPanel("Run Custom Simulation",
-        HTML("<div class='description2'>
-              <p><strong>Welcome to the Custom Simulations Tab!</strong></p>
-              <p>This tab provides detailed information of winning probabilities using:</p>
+             tabPanel("Custom Simulator & Results Visualizer",
+                      HTML("<div class='description2'>
+              <p><strong>Welcome to the Custom Simulator & Results Visualizer Tab!</strong></p>
+              <p>This tab provides detailed insights of winning probabilities using:</p>
               <ul>
                 <li>An option to run custom simulations by deciding the athletes for all the teams</li>
                 <li>An option to input custom apparatus assignments as well.</li>
                 <li>An option to choose the number of simulations to run.</li>
+                <li>Visualization options to represent simulation results for Team USA.</li>
               </ul>
-                <p>The output is a table showing the probability of achieving the positions in all the events for all athletes/teams.</p>
+              <p>The output includes the following: 
+              <ul>
+                <li>A table showing the probability of achieving the positions in all the events for all athletes/teams</li>
+                <li>Multiple tabs for visualizations generated dynamically based on the simulation outcomes</li>
+              </ul>
             </div>"), 
-        fluidRow(
-          column(4, selectInput("simgender", "Gender: ", c("Men", "Women"))),
-          column(4, numericInput("n_sims", "Number of Simulations: ",  value = 10, min = 1, max=1000))
-        ),
-        
-        
-        div(style = "height: 50px;"),
-        fluidRow(
-          column(7, selectizeInput("T1_athletes",
-                                   glue("{men_countries[1]} Athletes (5):"),
-                                   choices=NULL, multiple=TRUE,
-                                   options = list(maxItems = 5),
-                                   width = "600px")),
-          column(4, checkboxInput("T1_apps", "Custom assign apparatus"))
-        ),
-        fluidRow(class = "bordered-row",
-          conditionalPanel(condition="input.T1_apps == 1", style = "margin-left: 50px;",
-                           uiOutput("T1_appbox")
-          )
-        ),
-        
-        div(style = "height: 30px;"),
-        fluidRow(
-          column(7, selectizeInput("T2_athletes",
-                                   glue("{men_countries[2]} Athletes (5):"),
-                                   choices=NULL, multiple=TRUE,
-                                   options = list(maxItems = 5),
-                                   width = "600px")),
-          column(4, checkboxInput("T2_apps", "Custom assign apparatus"))
-        ),
-        fluidRow(class = "bordered-row",
-          conditionalPanel(condition="input.T2_apps == 1", style = "margin-left: 50px;",
-                          uiOutput("T2_appbox")
-          )
-        ),
-        
-        div(style = "height: 30px;"),
-        fluidRow(
-          column(7, selectizeInput("T3_athletes",
-                                   glue("{men_countries[3]} Athletes (5):"),
-                                   choices=NULL, multiple=TRUE,
-                                   options = list(maxItems = 5),
-                                   width = "600px")),
-          column(4, checkboxInput("T3_apps", "Custom assign apparatus"))
-        ),
-        fluidRow(class = "bordered-row",
-          conditionalPanel(condition="input.T3_apps == 1", style = "margin-left: 50px;",
-                          uiOutput("T3_appbox")
-          
-          )
-        ),
-        
-        div(style = "height: 30px;"),
-        fluidRow(
-          column(7, selectizeInput("T4_athletes",
-                                   glue("{men_countries[4]} Athletes (5):"),
-                                   choices=NULL, multiple=TRUE,
-                                   options = list(maxItems = 5),
-                                   width = "600px")),
-          column(4, checkboxInput("T4_apps", "Custom assign apparatus"))
-        ),
-        fluidRow(class = "bordered-row",
-                 conditionalPanel(condition="input.T4_apps == 1", style = "margin-left: 50px;",
-                                  uiOutput("T4_appbox")
-                 )
-        ),
-        
-        div(style = "height: 30px;"),
-        fluidRow(
-          column(7, selectizeInput("T5_athletes",
-                                   glue("{men_countries[5]} Athletes (5):"),
-                                   choices=NULL, multiple=TRUE,
-                                   options = list(maxItems = 5),
-                                   width = "600px")),
-          column(4, checkboxInput("T5_apps", "Custom assign apparatus"))
-        ),
-        fluidRow(class = "bordered-row",
-                 conditionalPanel(condition="input.T5_apps == 1", style = "margin-left: 50px;",
-                                  uiOutput("T5_appbox")
-                 )
-        ),
-        
-        div(style = "height: 30px;"),
-        fluidRow(
-          column(7, selectizeInput("T6_athletes",
-                                   glue("{men_countries[6]} Athletes (5):"),
-                                   choices=NULL, multiple=TRUE,
-                                   options = list(maxItems = 5),
-                                   width = "600px")),
-          column(4, checkboxInput("T6_apps", "Custom assign apparatus"))
-        ),
-        fluidRow(class = "bordered-row",
-                 conditionalPanel(condition="input.T6_apps == 1", style = "margin-left: 50px;",
-                                  uiOutput("T6_appbox")
-                 )
-        ),
-        
-        div(style = "height: 30px;"),
-        fluidRow(
-          column(7, selectizeInput("T7_athletes",
-                                   glue("{men_countries[7]} Athletes (5):"),
-                                   choices=NULL, multiple=TRUE,
-                                   options = list(maxItems = 5),
-                                   width = "600px")),
-          column(4, checkboxInput("T7_apps", "Custom assign apparatus"))
-        ),
-        fluidRow(class = "bordered-row",
-                 conditionalPanel(condition="input.T7_apps == 1", style = "margin-left: 50px;",
-                                  uiOutput("T7_appbox")
-                 )
-        ),
-        
-        div(style = "height: 30px;"),
-        fluidRow(
-          column(7, selectizeInput("T8_athletes",
-                                   glue("{men_countries[8]} Athletes (5):"),
-                                   choices=NULL, multiple=TRUE,
-                                   options = list(maxItems = 5),
-                                   width = "600px")),
-          column(4, checkboxInput("T8_apps", "Custom assign apparatus"))
-        ),
-        fluidRow(class = "bordered-row",
-                 conditionalPanel(condition="input.T8_apps == 1", style = "margin-left: 50px;",
-                                  uiOutput("T8_appbox")
-                 )
-        ),
-        
-        div(style = "height: 30px;"),
-        fluidRow(
-          column(7, selectizeInput("T9_athletes", glue("{men_countries[9]} Athletes (5):"),
-                                   choices=NULL, multiple=TRUE,
-                                   options = list(maxItems = 5),
-                                   width = "600px")),
-          column(4, checkboxInput("T9_apps", "Custom assign apparatus"))
-        ),
-        fluidRow(class = "bordered-row",
-                 conditionalPanel(condition="input.T9_apps == 1", style = "margin-left: 50px;",
-                                  uiOutput("T9_appbox")
-                 )
-        ),
-        
-        div(style = "height: 30px;"),
-        fluidRow(
-          column(7, selectizeInput("T10_athletes",
-                                   glue("{men_countries[10]} Athletes (5):"),
-                                   choices=NULL, multiple=TRUE,
-                                   options = list(maxItems = 5),
-                                   width = "600px")),
-          column(4, checkboxInput("T10_apps", "Custom assign apparatus"))
-        ),
-        fluidRow(class = "bordered-row",
-                 conditionalPanel(condition="input.T10_apps == 1", style = "margin-left: 50px;",
-                                  uiOutput("T10_appbox")
-                 )
-        ),
-        
-        div(style = "height: 30px;"),
-        fluidRow(
-          column(7, selectizeInput("T11_athletes",
-                                   glue("{men_countries[11]} Athletes (5):"),
-                                   choices=NULL, multiple=TRUE,
-                                   options = list(maxItems = 5),
-                                   width = "600px")),
-          column(4, checkboxInput("T11_apps", "Custom assign apparatus"))
-        ),
-        fluidRow(class = "bordered-row",
-                 conditionalPanel(condition="input.T11_apps == 1", style = "margin-left: 50px;",
-                                  uiOutput("T11_appbox")
-                 )
-        ),
-        
-        div(style = "height: 30px;"),
-        fluidRow(
-          column(7, selectizeInput("T12_athletes",
-                                   glue("{men_countries[12]} Athletes (5):"), 
-                                   choices=NULL, multiple=TRUE,
-                                   options = list(maxItems = 5),
-                                   width = "600px")),
-          column(4, checkboxInput("T12_apps", "Custom assign apparatus"))
-        ),
-        fluidRow(class = "bordered-row",
-                 conditionalPanel(condition="input.T12_apps == 1", style = "margin-left: 50px;",
-                                  uiOutput("T12_appbox")
-                 )
-        ),
-        
-        # Submit button
-        actionButton("submit_btn2", "Submit"),
-        
-        mainPanel(
-          tabsetPanel(
-            tabPanel("Simulation Results: Probability Table", 
-                     div(id = "loading", class = "loader", 
-                         tags$div(class = "loading-text", "Running Simulations..."), 
-                         style = "display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);"),
-                     DTOutput("sim_results"))
-          )
-        )
-
-    )
-)
+                      fluidRow(
+                        column(4, selectInput("simgender", "Gender: ", c("Men", "Women"))),
+                        column(4, numericInput("n_sims", "Number of Simulations: ",  value = 10, min = 1, max=1000))
+                      ),
+                      
+                      
+                      div(style = "height: 50px;"),
+                      fluidRow(
+                        column(7, selectizeInput("T1_athletes",
+                                                 glue("{men_countries[1]} Athletes (5):"),
+                                                 choices=NULL, multiple=TRUE,
+                                                 options = list(maxItems = 5),
+                                                 width = "600px")),
+                        column(4, checkboxInput("T1_apps", "Custom assign apparatus"))
+                      ),
+                      fluidRow(class = "bordered-row",
+                               conditionalPanel(condition="input.T1_apps == 1", style = "margin-left: 50px;",
+                                                uiOutput("T1_appbox")
+                               )
+                      ),
+                      
+                      div(style = "height: 30px;"),
+                      fluidRow(
+                        column(7, selectizeInput("T2_athletes",
+                                                 glue("{men_countries[2]} Athletes (5):"),
+                                                 choices=NULL, multiple=TRUE,
+                                                 options = list(maxItems = 5),
+                                                 width = "600px")),
+                        column(4, checkboxInput("T2_apps", "Custom assign apparatus"))
+                      ),
+                      fluidRow(class = "bordered-row",
+                               conditionalPanel(condition="input.T2_apps == 1", style = "margin-left: 50px;",
+                                                uiOutput("T2_appbox")
+                               )
+                      ),
+                      
+                      div(style = "height: 30px;"),
+                      fluidRow(
+                        column(7, selectizeInput("T3_athletes",
+                                                 glue("{men_countries[3]} Athletes (5):"),
+                                                 choices=NULL, multiple=TRUE,
+                                                 options = list(maxItems = 5),
+                                                 width = "600px")),
+                        column(4, checkboxInput("T3_apps", "Custom assign apparatus"))
+                      ),
+                      fluidRow(class = "bordered-row",
+                               conditionalPanel(condition="input.T3_apps == 1", style = "margin-left: 50px;",
+                                                uiOutput("T3_appbox")
+                                                
+                               )
+                      ),
+                      
+                      div(style = "height: 30px;"),
+                      fluidRow(
+                        column(7, selectizeInput("T4_athletes",
+                                                 glue("{men_countries[4]} Athletes (5):"),
+                                                 choices=NULL, multiple=TRUE,
+                                                 options = list(maxItems = 5),
+                                                 width = "600px")),
+                        column(4, checkboxInput("T4_apps", "Custom assign apparatus"))
+                      ),
+                      fluidRow(class = "bordered-row",
+                               conditionalPanel(condition="input.T4_apps == 1", style = "margin-left: 50px;",
+                                                uiOutput("T4_appbox")
+                               )
+                      ),
+                      
+                      div(style = "height: 30px;"),
+                      fluidRow(
+                        column(7, selectizeInput("T5_athletes",
+                                                 glue("{men_countries[5]} Athletes (5):"),
+                                                 choices=NULL, multiple=TRUE,
+                                                 options = list(maxItems = 5),
+                                                 width = "600px")),
+                        column(4, checkboxInput("T5_apps", "Custom assign apparatus"))
+                      ),
+                      fluidRow(class = "bordered-row",
+                               conditionalPanel(condition="input.T5_apps == 1", style = "margin-left: 50px;",
+                                                uiOutput("T5_appbox")
+                               )
+                      ),
+                      
+                      div(style = "height: 30px;"),
+                      fluidRow(
+                        column(7, selectizeInput("T6_athletes",
+                                                 glue("{men_countries[6]} Athletes (5):"),
+                                                 choices=NULL, multiple=TRUE,
+                                                 options = list(maxItems = 5),
+                                                 width = "600px")),
+                        column(4, checkboxInput("T6_apps", "Custom assign apparatus"))
+                      ),
+                      fluidRow(class = "bordered-row",
+                               conditionalPanel(condition="input.T6_apps == 1", style = "margin-left: 50px;",
+                                                uiOutput("T6_appbox")
+                               )
+                      ),
+                      
+                      div(style = "height: 30px;"),
+                      fluidRow(
+                        column(7, selectizeInput("T7_athletes",
+                                                 glue("{men_countries[7]} Athletes (5):"),
+                                                 choices=NULL, multiple=TRUE,
+                                                 options = list(maxItems = 5),
+                                                 width = "600px")),
+                        column(4, checkboxInput("T7_apps", "Custom assign apparatus"))
+                      ),
+                      fluidRow(class = "bordered-row",
+                               conditionalPanel(condition="input.T7_apps == 1", style = "margin-left: 50px;",
+                                                uiOutput("T7_appbox")
+                               )
+                      ),
+                      
+                      div(style = "height: 30px;"),
+                      fluidRow(
+                        column(7, selectizeInput("T8_athletes",
+                                                 glue("{men_countries[8]} Athletes (5):"),
+                                                 choices=NULL, multiple=TRUE,
+                                                 options = list(maxItems = 5),
+                                                 width = "600px")),
+                        column(4, checkboxInput("T8_apps", "Custom assign apparatus"))
+                      ),
+                      fluidRow(class = "bordered-row",
+                               conditionalPanel(condition="input.T8_apps == 1", style = "margin-left: 50px;",
+                                                uiOutput("T8_appbox")
+                               )
+                      ),
+                      
+                      div(style = "height: 30px;"),
+                      fluidRow(
+                        column(7, selectizeInput("T9_athletes", glue("{men_countries[9]} Athletes (5):"),
+                                                 choices=NULL, multiple=TRUE,
+                                                 options = list(maxItems = 5),
+                                                 width = "600px")),
+                        column(4, checkboxInput("T9_apps", "Custom assign apparatus"))
+                      ),
+                      fluidRow(class = "bordered-row",
+                               conditionalPanel(condition="input.T9_apps == 1", style = "margin-left: 50px;",
+                                                uiOutput("T9_appbox")
+                               )
+                      ),
+                      
+                      div(style = "height: 30px;"),
+                      fluidRow(
+                        column(7, selectizeInput("T10_athletes",
+                                                 glue("{men_countries[10]} Athletes (5):"),
+                                                 choices=NULL, multiple=TRUE,
+                                                 options = list(maxItems = 5),
+                                                 width = "600px")),
+                        column(4, checkboxInput("T10_apps", "Custom assign apparatus"))
+                      ),
+                      fluidRow(class = "bordered-row",
+                               conditionalPanel(condition="input.T10_apps == 1", style = "margin-left: 50px;",
+                                                uiOutput("T10_appbox")
+                               )
+                      ),
+                      
+                      div(style = "height: 30px;"),
+                      fluidRow(
+                        column(7, selectizeInput("T11_athletes",
+                                                 glue("{men_countries[11]} Athletes (5):"),
+                                                 choices=NULL, multiple=TRUE,
+                                                 options = list(maxItems = 5),
+                                                 width = "600px")),
+                        column(4, checkboxInput("T11_apps", "Custom assign apparatus"))
+                      ),
+                      fluidRow(class = "bordered-row",
+                               conditionalPanel(condition="input.T11_apps == 1", style = "margin-left: 50px;",
+                                                uiOutput("T11_appbox")
+                               )
+                      ),
+                      
+                      div(style = "height: 30px;"),
+                      fluidRow(
+                        column(7, selectizeInput("T12_athletes",
+                                                 glue("{men_countries[12]} Athletes (5):"), 
+                                                 choices=NULL, multiple=TRUE,
+                                                 options = list(maxItems = 5),
+                                                 width = "600px")),
+                        column(4, checkboxInput("T12_apps", "Custom assign apparatus"))
+                      ),
+                      fluidRow(class = "bordered-row",
+                               conditionalPanel(condition="input.T12_apps == 1", style = "margin-left: 50px;",
+                                                uiOutput("T12_appbox")
+                               )
+                      ),
+                      
+                      # Submit button
+                      actionButton("submit_btn2", "Submit"),
+                      
+                      mainPanel(
+                        tabsetPanel(
+                          tabPanel("Simulation Results: Probability Table", 
+                                   div(id = "loading", class = "loader", 
+                                       tags$div(class = "loading-text", "Running Simulations..."), 
+                                       style = "display: none; position: absolute; top: 50%; right: 10px; transform: translate(0%, -50%);"),
+                                   DTOutput("sim_results")),
+                          tabPanel("Heatmap",
+                                   fluidRow(
+                                     #column(4, selectInput("countryviz1", "Country: ", choices = NULL, selected = "USA")),
+                                     column(12, plotOutput("plot1", height = "650px"))
+                                   )),
+                          tabPanel("Scatterplot",
+                                   fluidRow(
+                                     #column(4, selectInput("countryviz2", "Country: ", choices = NULL, selected = "USA")),
+                                     column(12, plotOutput("plot2", height = "650px"))
+                                   ))
+                        )
+                        
+                      )
+             )
+  )
 )
 
 
@@ -461,7 +476,7 @@ server <- function(input, output, session) {
       datatable(selected_data, options = list(pageLength = 5))
     })
   })  
-
+  
   # initialize all of the optional input boxes (for assigning to apps)
   lapply(1:12, function(i){
     
@@ -530,13 +545,13 @@ server <- function(input, output, session) {
     qual36 <- get_qual36(input$simgender)
     
     long_meanstds <- read.csv("long_meanstds.csv")
-
+    
     
     # Parse the selected Players into df
     assigned_list <- list()
     for(i in 1:12){
       if(!input[[glue("T{i}_apps")]]){ # when no custom app assigns, use get_default_assignment
-
+        
         athletes_df <- data.frame(
           "ID" = get_IDs_for_names(input[[glue("T{i}_athletes")]], key),
           "Country" = rep(countries[i], 5),
@@ -544,12 +559,12 @@ server <- function(input, output, session) {
         )
         assigned_list[[i]] <- get_default_assignments(athletes_df, means_df)
         assigned_list[[i]]$Gender <- gender
-
+        
         
       }else{ # parse custom assignment input
-
+        
         temp_list <- list()
-
+        
         for(j in 1:length(apps)){
           temp_list[[j]] <- data.frame(
             "ID" = get_IDs_for_names(input[[glue("T{i}_{apps[j]}")]], key),
@@ -562,7 +577,7 @@ server <- function(input, output, session) {
         temp_df <- bind_rows(temp_list)
         assigned_list[[i]] <- merge(temp_df, long_means, all.x = T)
       }
-
+      
     }
     print("finished assignments")
     
@@ -570,24 +585,95 @@ server <- function(input, output, session) {
     
     n_sims <- input$n_sims
     sim_results <- list()
-
+    
     for(i in 1:n_sims){
       sim_results[[i]] <- run_sims(competitors, qual36, long_meanstds, gender, do_sampling=T)[[2]] %>% select(-Score)
     }
-
+    
     sim_results <- bind_rows(sim_results)
     sim_results <- sim_results %>% group_by(ID, Country, App, Place) %>% summarize(Count=round(n()/n_sims, 2)) %>% pivot_wider(names_from=Place, values_from=Count)
     sim_results <- sim_results[, c("ID", "Country", "App",
                                    "First", "Second", "Third", "Fourth", "Fifth", "Sixth", "Seventh", "Eighth")] %>%
       rename(Name = ID, Apparatus = App)
     sim_results$Name <- get_names_for_IDs(sim_results$Name, key)
+    sim_results$Gender <- input$simgender
+    simres <- sim_results
+    
+    if(simres$Gender[1] == "Women"){
+      apparatus_mapping <- c("VT" = "Vault",
+                             "UB" = "Uneven Bars",
+                             "BB" = "Balance Beam",
+                             "FX" = "Floor Exercise",
+                             "AA" = "Individual All-Around",
+                             "Team" = "Team")
+    }else{
+      apparatus_mapping <- c("VT" = "Vault",
+                             "PB" = "Parallel Bars",
+                             "HB" = "High Bar",
+                             "SR" = "Still Rings",
+                             "PH" = "Pommel Horse",
+                             "FX" = "Floor Exercise",
+                             "AA" = "Individual All-Around",
+                             "Team" = "Team")
+    }
+    
+    # Fill NA values with 0
+    simres <- simres %>%
+      replace_na(list(First = 0, Second = 0, Third = 0, Fourth = 0, Fifth = 0,
+                      Sixth = 0, Seventh = 0, Eighth = 0)) %>%
+      rename(
+        Gold = First,
+        Silver = Second,
+        Bronze = Third
+      )
+    
+    simres <- simres %>%
+      mutate(Apparatus = apparatus_mapping[Apparatus])
+    
+    # Filter the data to include only the athletes with probabilities in first, second, and third positions
+    simres_filtered <- simres %>%
+      filter(Country %in% c("USA")) %>%
+      select(Name, Country, Apparatus, Gold, Silver, Bronze) %>%
+      pivot_longer(cols = c(Gold, Silver, Bronze), names_to = "Position", values_to = "Probability") 
+    
+    # Reorder levels of Position variable
+    simres_filtered$Position <- factor(simres_filtered$Position, levels = c("Gold", "Silver", "Bronze"))
+    
+    output$plot1 <- renderPlot({
+      # Heatmap with larger gradient for probability and probability labels
+      ggplot(simres_filtered, aes(x = Position, y = Name, fill = Probability)) +
+        geom_tile() +
+        geom_text(aes(label = scales::percent(Probability, accuracy = 0.1)), color = "black", size = 4) +  # Add text labels for probability
+        scale_fill_gradient(low = "white", high = "#9B00FF", limits = c(0, 1), guide = guide_colorbar(barwidth = 15)) +  # Adjust gradient for probability
+        facet_wrap(~Apparatus, scales = "free") +
+        labs(title = "Probabilities of Medal Positions by Athlete and Apparatus",
+             x = "Position",
+             y = "Athlete",
+             fill = "Probability") +
+        pubtheme::theme_pub()   # Adjust legend position
+    })
+    
+    output$plot2 <- renderPlot({
+      # Plot the data with pubtheme
+      ggplot(simres_filtered, aes(x = Position, y = Probability, fill = , color = Name)) +
+        geom_point(size = 2) +
+        facet_wrap(~Apparatus) +
+        labs(title = "Team USA Gold, Silver, and Bronze Positions Probabilities",
+             x = "Position",
+             y = "Probability",
+             color = "Athlete") +
+        pubtheme::theme_pub() +  # Apply the pubtheme
+        theme(axis.text.x = element_text(angle = 45, hjust = 1),
+              legend.position = "bottom",
+              legend.title = element_blank(),
+              legend.text = element_text(size = 8))
+    })
     
     shinyjs::hide("loading")
     output$sim_results <- renderDT({
       datatable(sim_results, options = list(pageLength = 50))
-      })
+    })
   })
-  
 }
 
 
