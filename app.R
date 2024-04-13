@@ -9,17 +9,18 @@ source("simulate_medals.R")
 source("get_default_assignments.R")
 source("run_sims.R")
 
-men_best <- readRDS("data/best.teams.mens.rds")
-women_best <- readRDS("data/best.teams.womens.rds")
-optimized_teams <- readRDS("data/optimized_teams.rds")
-means_df <- readRDS("data/means_df.rds")
-stddevs_df <- readRDS("data/stddevs.rds")
+men_best <- readRDS("data/best.teams.mens.optimized2.rds")
+women_best <- readRDS("data/best.teams.womens.optimized2.rds")
+optimized_teams <- readRDS("data/optimized_teams.new.rds")
+means_df <- readRDS("data/means_df.new.rds")
+stddevs_df <- readRDS("data/stddevs_df.new.rds")
+sim_players <- readRDS("data/sim.players.rds")
 
-key <- readRDS("data/name_ID_key.rds")
+key <- readRDS("data/name_ID_key.new.rds")
 alt36m <- readRDS("data/alt36m.rds")
 alt36w <- readRDS("data/alt36w.rds")
 
-men_countries <- c("JPN", "USA", "GBR", "CAN", "GER", "ITA", "SUI", "CHN", "ESP", "UKR",  "TUR", "NED")
+men_countries <- c("USA", "JPN", "GBR", "CAN", "GER", "ITA", "SUI", "CHN", "ESP", "UKR",  "TUR", "NED")
 women_countries <- c("USA", "GBR", "CAN", "BRA", "ITA", "CHN", "JPN", "FRA", "KOR", "AUS", "NED", "ROU")
 
 men_apps <- c("VT", "FX", "HB", "PB", "PH", "SR")
@@ -91,7 +92,7 @@ ui <- fluidPage(
                       sidebarLayout(
                         sidebarPanel(width=2,
                                      # gender 
-                                     selectInput("gender", "Gender: ", c("Men", "Women")),
+                                     selectInput("gender", "Gender: ", c("Women", "Men")),
                                      
                                      # country of interest 
                                      selectInput("country", "Country: ", choices = NULL, selected = "USA"),
@@ -143,7 +144,7 @@ ui <- fluidPage(
               </ul>
             </div>"), 
                       fluidRow(
-                        column(4, selectInput("simgender", "Gender: ", c("Men", "Women"))),
+                        column(4, selectInput("simgender", "Gender: ", c("Women", "Men"))),
                         column(4, numericInput("n_sims", "Number of Simulations: ",  value = 10, min = 1, max=1000))
                       ),
                       
@@ -335,18 +336,20 @@ ui <- fluidPage(
                         tabsetPanel(
                           tabPanel("Simulation Results: Probability Table", 
                                    div(id = "loading", class = "loader", 
-                                       tags$div(class = "loading-text", "Running Simulations..."), 
+                                       tags$div(class = "loading-text", "Simulating..."), 
                                        style = "display: none; position: absolute; top: 50%; right: 10px; transform: translate(0%, -50%);"),
                                    DTOutput("sim_results")),
-                          tabPanel("Heatmap",
+                          tabPanel("Athlete Specific Heatmap",
                                    fluidRow(
-                                     #column(4, selectInput("countryviz1", "Country: ", choices = NULL, selected = "USA")),
                                      column(12, plotOutput("plot1", height = "650px"))
                                    )),
-                          tabPanel("Scatterplot",
+                          tabPanel("Athlete Specific Scatterplot",
                                    fluidRow(
-                                     #column(4, selectInput("countryviz2", "Country: ", choices = NULL, selected = "USA")),
                                      column(12, plotOutput("plot2", height = "650px"))
+                                   )),
+                          tabPanel("Team Heatmap",
+                                   fluidRow(
+                                     column(12, plotOutput("plot3", height = "650px"))
                                    ))
                         )
                         
@@ -362,10 +365,10 @@ server <- function(input, output, session) {
     # Update country choices based on selected gender
     if (input$gender == "Men") {
       updateSelectInput(session, "country", 
-                        choices = unique(men_best$optimizedteams$Country[men_best$optimizedteams$Gender == "m"]))
+                        choices = men_countries)
     } else {
       updateSelectInput(session, "country", 
-                        choices = unique(women_best$optimizedteams$Country[women_best$optimizedteams$Gender == "w"]))
+                        choices = women_countries)
     }
   })
   
@@ -373,19 +376,19 @@ server <- function(input, output, session) {
     # Update choices dynamically based on selected gender
     if (input$gender == "Men") {
       updateSelectInput(session, "include_players", 
-                        choices = get_names_for_IDs(unique(na.omit(means_df$ID[means_df$Gender == "m" & means_df$Country == input$country])), key))
+                        choices = get_names_for_IDs(unique(na.omit(sim_players$ID[sim_players$Gender == "m" & sim_players$Country == input$country])), key))
     } else {
       updateSelectInput(session, "include_players", 
-                        choices = get_names_for_IDs(unique(na.omit(means_df$ID[means_df$Gender == "w" & means_df$Country == input$country])), key))
+                        choices = get_names_for_IDs(unique(na.omit(sim_players$ID[sim_players$Gender == "w" & sim_players$Country == input$country])), key))
     }
     
     # Update choices dynamically based on selected gender
     if (input$gender == "Men") {
       updateSelectInput(session, "exclude_players", 
-                        choices = get_names_for_IDs(unique(na.omit(means_df$ID[means_df$Gender == "m" & means_df$Country == input$country])), key))
+                        choices = get_names_for_IDs(unique(na.omit(sim_players$ID[sim_players$Gender == "m" & sim_players$Country == input$country])), key))
     } else {
       updateSelectInput(session, "exclude_players", 
-                        choices = get_names_for_IDs(unique(na.omit(means_df$ID[means_df$Gender == "w" & means_df$Country == input$country])), key))
+                        choices = get_names_for_IDs(unique(na.omit(sim_players$ID[sim_players$Gender == "w" & sim_players$Country == input$country])), key))
     }
   })
   
@@ -393,10 +396,10 @@ server <- function(input, output, session) {
   observeEvent(input$submit_btn, {
     # Check the value of input$gender and update the data frame accordingly
     selected_data <- if (input$gender == "Women") {
-      women_best$simresults %>%
+      women_best %>%
         filter(Country == input$country)
     } else {
-      men_best$simresults %>%
+      men_best %>%
         filter(Country == input$country)
     }
     
@@ -424,15 +427,10 @@ server <- function(input, output, session) {
     selected_data$P4 <- get_names_for_IDs(selected_data$P4, key)
     selected_data$P5 <- get_names_for_IDs(selected_data$P5, key)
     
+    
+    # Apply the function to each column without using loops
+    
     if (input$gender == "Men") {
-      for (i in 1:nrow(selected_data)) {
-        selected_data$VT[i] <- paste(get_names_for_IDs(lapply(strsplit(as.character(selected_data$VT[i]), ","), function(x) gsub("\\s+", "", x))[[1]], key), collapse = ", ")
-        selected_data$FX[i] <- paste(get_names_for_IDs(lapply(strsplit(as.character(selected_data$FX[i]), ","), function(x) gsub("\\s+", "", x))[[1]], key), collapse = ", ")
-        selected_data$HB[i] <- paste(get_names_for_IDs(lapply(strsplit(as.character(selected_data$HB[i]), ","), function(x) gsub("\\s+", "", x))[[1]], key), collapse = ", ")
-        selected_data$PB[i] <- paste(get_names_for_IDs(lapply(strsplit(as.character(selected_data$PB[i]), ","), function(x) gsub("\\s+", "", x))[[1]], key), collapse = ", ")
-        selected_data$PH[i] <- paste(get_names_for_IDs(lapply(strsplit(as.character(selected_data$PH[i]), ","), function(x) gsub("\\s+", "", x))[[1]], key), collapse = ", ")
-        selected_data$SR[i] <- paste(get_names_for_IDs(lapply(strsplit(as.character(selected_data$SR[i]), ","), function(x) gsub("\\s+", "", x))[[1]], key), collapse = ", ")
-      }
       
       selected_data <- selected_data %>%
         select(P1, P2, P3, P4, P5, VT, FX, HB, PB, PH, SR)
@@ -446,16 +444,7 @@ server <- function(input, output, session) {
                                "Athlete 4", "Athlete 5", "Vault", "Floor Exercise", 
                                "Horizontal Bar", "Parallel Bars", "Pommel Horse",
                                "Still Rings")
-    }
-    
-    if (input$gender == "Women") {
-      for (i in 1:nrow(selected_data)) {
-        selected_data$VT[i] <- paste(get_names_for_IDs(lapply(strsplit(as.character(selected_data$VT[i]), ","), function(x) gsub("\\s+", "", x))[[1]], key), collapse = ", ")
-        selected_data$BB[i] <- paste(get_names_for_IDs(lapply(strsplit(as.character(selected_data$BB[i]), ","), function(x) gsub("\\s+", "", x))[[1]], key), collapse = ", ")
-        selected_data$UB[i] <- paste(get_names_for_IDs(lapply(strsplit(as.character(selected_data$UB[i]), ","), function(x) gsub("\\s+", "", x))[[1]], key), collapse = ", ")
-        selected_data$FX[i] <- paste(get_names_for_IDs(lapply(strsplit(as.character(selected_data$FX[i]), ","), function(x) gsub("\\s+", "", x))[[1]], key), collapse = ", ")
-      }
-      
+    } else {
       selected_data <- selected_data %>%
         select(P1, P2, P3, P4, P5, VT, BB, UB, FX)
       
@@ -544,7 +533,7 @@ server <- function(input, output, session) {
     countries <- get_gender_country(input$simgender)
     qual36 <- get_qual36(input$simgender)
     
-    long_meanstds <- read.csv("long_meanstds.csv")
+    long_meanstds <- read.csv("data/long_meanstds.csv")
     
     
     # Parse the selected Players into df
@@ -579,7 +568,6 @@ server <- function(input, output, session) {
       }
       
     }
-    print("finished assignments")
     
     competitors <- bind_rows(assigned_list)
     
@@ -598,13 +586,18 @@ server <- function(input, output, session) {
     sim_results$Name <- get_names_for_IDs(sim_results$Name, key)
     sim_results$Gender <- input$simgender
     simres <- sim_results
+    sim_results = sim_results %>%
+      select(-Gender)
+    #saveRDS(simres, "simrestest.rds")
+    simres <- simres %>%
+      mutate(Name = ifelse(is.na(Name), Country, Name))
     
     if(simres$Gender[1] == "Women"){
       apparatus_mapping <- c("VT" = "Vault",
                              "UB" = "Uneven Bars",
                              "BB" = "Balance Beam",
                              "FX" = "Floor Exercise",
-                             "AA" = "Individual All-Around",
+                             "AA" = "All-Around",
                              "Team" = "Team")
     }else{
       apparatus_mapping <- c("VT" = "Vault",
@@ -613,9 +606,12 @@ server <- function(input, output, session) {
                              "SR" = "Still Rings",
                              "PH" = "Pommel Horse",
                              "FX" = "Floor Exercise",
-                             "AA" = "Individual All-Around",
+                             "AA" = "All-Around",
                              "Team" = "Team")
     }
+    
+    gender_suffix <- ifelse(simres$Gender[1] == "Men", "Men's", "Women's")
+    gender <- ifelse(simres$Gender[1] == "Men", "m", "w")
     
     # Fill NA values with 0
     simres <- simres %>%
@@ -639,14 +635,61 @@ server <- function(input, output, session) {
     # Reorder levels of Position variable
     simres_filtered$Position <- factor(simres_filtered$Position, levels = c("Gold", "Silver", "Bronze"))
     
+    if(gender == "m") {
+      simres_filtered$Apparatus <- factor(simres_filtered$Apparatus, levels = c("Team", "All-Around", "Vault", "Floor Exercise", "Pommel Horse", "Still Rings", "Parallel Bars", "High Bar"))
+    } else {
+      simres_filtered$Apparatus <- factor(simres_filtered$Apparatus, levels = c("Team", "All-Around", "Vault", "Floor Exercise", "Balance Beam", "Uneven Bars"))
+    }
+    
+    # Reorder levels of Position variable
+    simres_g1 <- data.frame(simres_filtered) # makes a copy
+    simres_g1 <- data.frame(lapply(simres_g1, function(x) gsub("Gold", "G", x)))
+    simres_g1 <- data.frame(lapply(simres_g1, function(x) gsub("Silver", "S", x)))
+    simres_g1 <- data.frame(lapply(simres_g1, function(x) gsub("Bronze", "B", x)))
+    simres_g1$Position <- factor(simres_g1$Position, levels = c("G", "S", "B"))
+    simres_g1$Probability <- as.numeric(simres_g1$Probability)
+    
+    if(gender == "m") {
+      simres_g1$Apparatus <- factor(simres_g1$Apparatus, levels = c("Team", "All-Around", "Vault", "Floor Exercise", "Pommel Horse", "Still Rings", "Parallel Bars", "High Bar"))
+    } else {
+      simres_g1$Apparatus <- factor(simres_g1$Apparatus, levels = c("Team", "All-Around", "Vault", "Floor Exercise", "Balance Beam", "Uneven Bars"))
+    }
+    
+    usa_data <- simres %>% filter(Country == "USA")
+    # Replace NA with 0 in the dataset
+    usa_data[is.na(usa_data)] <- 0
+    
+    # Calculate the probability of winning in each apparatus
+    usa_probabilities <- usa_data %>%
+      group_by(Apparatus) %>%
+      summarise(
+        Gold = sum(Gold, na.rm = TRUE),
+        Silver = sum(Silver, na.rm = TRUE),
+        Bronze = sum(Bronze, na.rm = TRUE)
+      )
+    
+    # Reshape the data for plotting
+    usa_probabilities_long <- usa_probabilities %>%
+      pivot_longer(cols = c(Gold, Silver, Bronze),
+                   names_to = "Medal",
+                   values_to = "Probability")
+    
+    usa_probabilities_long$Medal <- factor(usa_probabilities_long$Medal, levels = c("Bronze", "Silver", "Gold"))
+    
+    if(gender == "m") {
+      usa_probabilities_long$Apparatus <- factor(usa_probabilities_long$Apparatus, levels = c("Team", "All-Around", "Vault", "Floor Exercise", "Pommel Horse", "Still Rings", "Parallel Bars", "High Bar"))
+    } else {
+      usa_probabilities_long$Apparatus <- factor(usa_probabilities_long$Apparatus, levels = c("Team", "All-Around", "Vault", "Floor Exercise", "Balance Beam", "Uneven Bars"))
+    }
+    
     output$plot1 <- renderPlot({
       # Heatmap with larger gradient for probability and probability labels
       ggplot(simres_filtered, aes(x = Position, y = Name, fill = Probability)) +
         geom_tile() +
-        geom_text(aes(label = scales::percent(Probability, accuracy = 0.1)), color = "black", size = 4) +  # Add text labels for probability
+        geom_text(aes(label = scales::percent(Probability, accuracy = 0.1)), color = "black", size = 5) +  # Add text labels for probability
         scale_fill_gradient(low = "white", high = "#9B00FF", limits = c(0, 1), guide = guide_colorbar(barwidth = 15)) +  # Adjust gradient for probability
         facet_wrap(~Apparatus, scales = "free") +
-        labs(title = "Probabilities of Medal Positions by Athlete and Apparatus",
+        labs(title = paste("Team USA", gender_suffix, "Medal Positions per Athlete and Apparatus"),
              x = "Position",
              y = "Athlete",
              fill = "Probability") +
@@ -655,18 +698,34 @@ server <- function(input, output, session) {
     
     output$plot2 <- renderPlot({
       # Plot the data with pubtheme
-      ggplot(simres_filtered, aes(x = Position, y = Probability, fill = , color = Name)) +
-        geom_point(size = 2) +
-        facet_wrap(~Apparatus) +
-        labs(title = "Team USA Gold, Silver, and Bronze Positions Probabilities",
-             x = "Position",
+      ggplot(simres_g1, aes(x = Position, y = Probability, fill = , color = Name)) +
+        geom_point(size = 5, alpha=0.6, position = position_jitter(width = 0.2, height=0)) +
+        facet_wrap(~Apparatus, ncol=8) +
+        labs(title = paste("Team USA", gender_suffix, "Medalling Probabilities per Athlete"),
+             x = "Medal",
              y = "Probability",
              color = "Athlete") +
         pubtheme::theme_pub() +  # Apply the pubtheme
         theme(axis.text.x = element_text(angle = 45, hjust = 1),
               legend.position = "bottom",
               legend.title = element_blank(),
-              legend.text = element_text(size = 8))
+              legend.text = element_text(14)) +
+        ylim(0, 1)
+    })
+    
+    output$plot3 <- renderPlot({
+      # Plot heatmap with annotations
+      ggplot(usa_probabilities_long, aes(x = Apparatus, y = Medal, fill = Probability, label = paste0(round(Probability * 100, 1), "%"))) +
+        geom_tile(color = "white") +
+        geom_text(color = "black", size = 5) +  # Add text annotations
+        scale_fill_gradient(low = "white", high = "#9B00FF", limits = c(0, 1), guide = guide_colorbar(barwidth = 15)) +
+        labs(title = paste("Team USA", gender_suffix, "Medal Probability by Event"),
+             x = "Events",
+             y = "Medal",
+             fill = "Probability") +
+        pubtheme::theme_pub() +  # Apply the pubtheme
+        theme(axis.text.x = element_text(angle = 45, hjust = 1))
+      
     })
     
     shinyjs::hide("loading")

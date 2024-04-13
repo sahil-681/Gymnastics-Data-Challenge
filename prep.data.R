@@ -162,10 +162,14 @@ data = data %>%
          Country = ifelse(ID == "aleksandrov_yordan" & Gender == "m", "BUL", Country),
          ID = ifelse(ID == "richard_frederick_nathaniel" & Country == "USA", "richard_frederick", ID),
          ID = ifelse(ID == "skirkey_ian_hunter" & Country == "USA", "skirkey_ian", ID),
+         ID = ifelse(ID == "young_khoi_alexander" & Country == "USA", "young_khoi", ID),
+         ID = ifelse(ID == "moldauer_yul_kyung_tae" & Country == "USA", "moldauer_yul", ID),
+         ID = ifelse(ID == "yulo_carlos_edriel" & Country == "PHI", "yulo_carlos", ID),
          ID = ifelse(ID == "callum_mc_grace" & Country == "USA", "mc_callum", ID)
   )
 
 data <- data[!(data$ID == "whitehead_emily" & data$Gender == "m"), ]
+data <- data[!(data$ID == "skinner_mykayla" & data$Gender == "w"), ]
 data <- data[!(data$ID == "achampong_ondine" & data$Gender == "m"), ]
 
 # Use dplyr to fill missing or empty entries based on non-missing entries

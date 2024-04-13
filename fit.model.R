@@ -60,3 +60,7 @@ write.csv(stddevs_df, "data/stddevs_per_app.csv", row.names = F)
 write.csv(long_meanstds, "data/long_meanstds.csv", row.names = F)
 write.csv(samples_df, "data/score_predictions.csv", row.names = F)
 print("Finished fitting model")
+
+saveRDS(means_df_new, "data/means_df.new.rds")
+saveRDS(stddevs_df, "data/stddevs_df.new.rds")
+saveRDS(long_meanstds, "data/long_meanstds.new.rds")

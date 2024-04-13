@@ -5,8 +5,8 @@ account: sahil-singh-6
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 10118129
-bundleId: 8465505
+bundleId: 8488192
 url: https://sahil-singh-6.shinyapps.io/gymnastics/
 asMultiple: FALSE
 asStatic: FALSE
-ignoredFiles: .gitattributes|app2.R
+ignoredFiles: .gitattributes

@@ -205,18 +205,18 @@ get.best.teams <- function(start_teams, countries, gender, means_df,
   return(list(optimizedteams = start_teams, simresults = all_sims))
 }
 
-start.time <- Sys.time()
-# mens (takes close to 2 hours to run)
-men_best <- get.best.teams(start_teams = startteams[startteams$Gender == "m", ], # must only start with correct gender, or else other gender is outputted too which is confusing
-                           countries = unique(startteams$Country[startteams$Gender == "m"]),
-                           gender = "m",
-                           means,
-                           stddevs, alt36m)
-end.time <- Sys.time()
-time.taken.mens <- round(end.time - start.time,2)
-time.taken.mens
+# start.time <- Sys.time()
+# # mens (takes close to 2 hours to run)
+# men_best <- get.best.teams(start_teams = startteams[startteams$Gender == "m", ], # must only start with correct gender, or else other gender is outputted too which is confusing
+#                            countries = unique(startteams$Country[startteams$Gender == "m"]),
+#                            gender = "m",
+#                            means,
+#                            stddevs, alt36m)
+# end.time <- Sys.time()
+# time.taken.mens <- round(end.time - start.time,2)
+# time.taken.mens
 
-# men_best <- readRDS("data/best.teams.mens.rds")
+men_best <- readRDS("data/best.teams.mens.new.rds")
 
 # start.time <- Sys.time()
 # # womens (takes close to 1 hours to run)
@@ -226,12 +226,12 @@ time.taken.mens
 #                     means,
 #                     stddevs, alt36w)
 # end.time <- Sys.time()
-# time.taken.mens <- round(end.time - start.time,2)
-# time.taken.mens
+# time.taken.womens <- round(end.time - start.time,2)
+# time.taken.womens
 
-# women_best <- readRDS("data/best.teams.womens.rds")
+women_best <- readRDS("data/best.teams.womens.new.rds")
 
 # saved
-saveRDS(men_best, file = "data/best.teams.mens.rds")
-# saveRDS(women_best, file = "data/best.teams.womens.rds")
+# saveRDS(men_best, file = "data/best.teams.mens.new.rds")
+# saveRDS(women_best, file = "data/best.teams.womens.new.rds")
 
