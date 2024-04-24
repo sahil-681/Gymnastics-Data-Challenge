@@ -9,6 +9,8 @@
 
 - R Shiny App: <https://sahil-singh-6.shinyapps.io/gymnastics>
 
+- Research Poster: <https://sahil-681.github.io/portfolio/assets/img/poster.pdf>
+
 ## Introduction:
 
 The goal of this analysis and Shiny app is to navigate the multifaceted
