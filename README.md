@@ -11,7 +11,7 @@
 
 ## Introduction:
 
-The goal of this analysis and Shiny pap is to navigate the multifaceted
+The goal of this analysis and Shiny app is to navigate the multifaceted
 challenges of selecting the most optimum team to pick for the 2024 Paris
 Olympics Gymnastics Event. Our tool is built on the comprehensive
 dataset provided, and takes the help of a plethora of R scripts written
